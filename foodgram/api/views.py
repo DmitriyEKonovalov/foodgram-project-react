@@ -9,16 +9,16 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from recipes.models import (
-    Ingridient,
+    Ingredient,
     Recipe,
-    RecipeIngridients,
+    RecipeIngredients,
     Subscribe,
     Favorite,
     ShoppingCart,
     Tag
 )
 from .serializers import (
-    IngridientSerializer,
+    IngredientSerializer,
     RecipeSerializer,
     TagSerializer,
 )
@@ -29,17 +29,20 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
 
 
-class IngridientViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Ingridient.objects.all()
-    serializer_class = IngridientSerializer
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
 
     def get_queryset(self):
-        queryset = Recipe.objects.select_related('author').prefetch_related('ingridients', 'tags').all()
+        queryset = Recipe.objects.select_related('author').prefetch_related('ingredients', 'tags').all()
         return queryset
+
+    # def get_serializer(self, *args, **kwargs):
+    #     return self.serializer_class(source=self.queryset)
 
     # recipes/download_shopping_cart/    Скачать список покупок
     @action(['get'], detail=False, url_path=r'download_shopping_cart')

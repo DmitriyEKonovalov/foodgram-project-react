@@ -34,7 +34,7 @@ class Tag(models.Model):
         return self.__repr__()
 
 
-class Ingridient(models.Model):
+class Ingredient(models.Model):
     name = models.CharField(
         verbose_name='Название',
         max_length=200,
@@ -78,6 +78,7 @@ class Recipe(models.Model):
         blank=False
     )
     image = models.ImageField(
+        upload_to='upload/',
         verbose_name='Картинка',
         blank=False
     )
@@ -91,12 +92,6 @@ class Recipe(models.Model):
         verbose_name='Время приготовления (в минутах)',
         blank=False
     )
-    # ingridients = models.ManyToManyField(
-    #     Ingridient,
-    #     through='RecipeIngridients',
-    #     verbose_name='ингридиенты',
-    # )
-
     pub_date = models.DateTimeField(
         'Дата публикации',
         auto_now_add=True,
@@ -115,16 +110,16 @@ class Recipe(models.Model):
         return self.__repr__()
 
 
-class RecipeIngridients(models.Model):
+class RecipeIngredients(models.Model):
 
     recipe = models.ForeignKey(
         Recipe,
-        related_name='ingridients',
+        related_name='ingredients',
         on_delete=models.CASCADE,
         verbose_name='ингридиенты',
     )
-    ingridient = models.ForeignKey(
-        Ingridient,
+    ingredient = models.ForeignKey(
+        Ingredient,
         related_name='recipes',
         on_delete=models.CASCADE,
         verbose_name='используется в рецептах',
@@ -140,7 +135,7 @@ class RecipeIngridients(models.Model):
         verbose_name_plural = 'Составы рецептов (ингридиенты)'
 
     def __repr__(self):
-        return f'{self.recipes}, {self.ingridients}, {self.amount}'
+        return f'{self.recipe}, {self.ingredient}, {self.amount}'
 
     def __str__(self):
         return self.__repr__()

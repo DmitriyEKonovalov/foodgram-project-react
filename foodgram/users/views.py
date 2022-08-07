@@ -20,8 +20,7 @@ from djoser import signals, utils
 from djoser.compat import get_user_email
 from djoser.conf import settings
 
-from api.serializers import UserRecipesSerializer, SubscribeSerializer
-from recipes.models import Subscribe
+from api.serializers import UserWithRecipesSerializer, SubscribeSerializer
 from .models import User
 from .serializers import BaseUserSerializer
 
@@ -38,8 +37,8 @@ class CustomUserViewSet(
         'create': settings.SERIALIZERS.user_create,
         'list': BaseUserSerializer,
         'retrieve': BaseUserSerializer,
-        'me': settings.SERIALIZERS.current_user,
-        'subscribe': UserRecipesSerializer,
+        'me': BaseUserSerializer,
+        'subscribe': SubscribeSerializer,
         'set_password': settings.SERIALIZERS.set_password,
 
     }
@@ -99,7 +98,7 @@ class CustomUserViewSet(
         queryset = User.objects.filter(id__in=subscribed).all()
 
         # pages = self.paginate_queryset(queryset)
-        serializer = UserRecipesSerializer(
+        serializer = UserWithRecipesSerializer(
             queryset,
             # pages,
             many=True,

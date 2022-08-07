@@ -2,7 +2,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenBlacklistView
 from django.urls import include
 from django.urls import path
-from .views import IngridientViewSet, TagViewSet, RecipeViewSet
+from .views import IngredientViewSet, TagViewSet, RecipeViewSet
 
 app_name = 'api'
 
@@ -16,7 +16,7 @@ router = DefaultRouter()
 # ingredients/{id}/   Получение ингредиента
 router.register(
     'ingredients',
-    IngridientViewSet,
+    IngredientViewSet,
     basename='ingredients'
 )
 

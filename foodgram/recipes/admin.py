@@ -2,9 +2,9 @@ from django.contrib import admin
 
 from .models import (
     Favorite,
-    Ingridient,
+    Ingredient,
     Recipe,
-    RecipeIngridients,
+    RecipeIngredients,
     ShoppingCart,
     Subscribe
 )
@@ -16,8 +16,8 @@ class FavoriteAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(Ingridient)
-class IngridientAdmin(admin.ModelAdmin):
+@admin.register(Ingredient)
+class IngredientAdmin(admin.ModelAdmin):
     # list_display = '__all__'
     pass
 
@@ -28,8 +28,8 @@ class RecipeAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(RecipeIngridients)
-class RecipeIngridientsAdmin(admin.ModelAdmin):
+@admin.register(RecipeIngredients)
+class RecipeingredientsAdmin(admin.ModelAdmin):
     # list_display = '__all__'
     pass
 

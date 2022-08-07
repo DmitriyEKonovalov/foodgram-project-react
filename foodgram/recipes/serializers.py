@@ -1,12 +1,13 @@
 from rest_framework import serializers
 from .models import (
-    Ingridient,
+    Ingredient,
     Recipe,
-    RecipeIngridients,
+    RecipeIngredients,
     Subscribe,
     ShoppingCart,
     Tag
 )
+
 
 class BaseRecipeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,9 +15,9 @@ class BaseRecipeSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'image', 'cooking_time']
 
 
-class IngridientSerializer(serializers.ModelSerializer):
+class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Ingridient
+        model = Ingredient
         fields = ['id', 'name', 'measurement_unit']
         read_only_fields = ['name', 'color', 'slug']
 

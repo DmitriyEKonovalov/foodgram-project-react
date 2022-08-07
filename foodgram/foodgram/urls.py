@@ -23,7 +23,7 @@ FROM RECIPES
         /api/recipes/{id}/favorite/         Добавить рецепт в избранное / Удалить рецепт из избранного/
         /api/recipes/{id}/shopping_cart/    Добавить рецепт в список покупок
 
-    INGRIDIENTS
+    ingredientS
         /api/ingredients/                   Список ингредиентов
         /api/ingredients/{id}/              Получение ингредиента
 
