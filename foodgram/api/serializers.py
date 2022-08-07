@@ -65,15 +65,13 @@ class RecipeSerializer(serializers.ModelSerializer):
         is_in_shopping_cart = obj.in_cart.filter(user=user).exists()
         return is_in_shopping_cart
 
-"""
     def to_internal_value(self, data):
-        ingredients = data['ingredients']
-        tags = data['tags']
-
+        # tags = [{'id': tag_id} for tag_id in data['tags']]
+        # data['tags'] = tags
+        data['author'] = self.context['request'].user
         return data
 
     def validate(self, attrs):
-        c = attrs
         # проверить наличие всех тегов в базе
 
         # проверить наличие всех ингридиентов в базе
@@ -82,9 +80,19 @@ class RecipeSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        c = validated_data
-        return c
-"""
+        method = self.context['request'].method
+        user = self.context['request'].user
+        # recipe = Recipe.objects.get(id=validated_data.id)
+        if method == "POST":
+            tags = validated_data.pop('tags')
+            ingredients = validated_data.pop('ingredients')
+            recipe = Recipe.objects.create(**validated_data)
+            recipe.tags.set(tags, clear=True)
+            objs = [RecipeIngredients(ingredient_id=i['id'], amount=i['amount']) for i in ingredients]
+            recipe.ingredients.set(objs, bulk=False, clear=True)
+
+        return recipe
+
 
 
 """
