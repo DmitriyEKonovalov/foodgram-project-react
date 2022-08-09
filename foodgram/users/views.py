@@ -1,13 +1,10 @@
 import uuid
-
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
 from rest_framework import viewsets
 from rest_framework import filters, mixins, permissions
 from rest_framework import generics, status
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model, update_session_auth_hash
 from rest_framework import generics, status, views, viewsets
@@ -19,8 +16,9 @@ from django.db.models import Prefetch
 from djoser import signals, utils
 from djoser.compat import get_user_email
 from djoser.conf import settings
-
-from api.serializers import UserWithRecipesSerializer, SubscribeSerializer
+from djoser.views import UserViewSet
+from api.serializers.users_serializers import SubscribeSerializer
+from api.serializers.users_serializers import UserWithRecipesSerializer
 from .models import User
 from .serializers import BaseUserSerializer
 
@@ -74,6 +72,7 @@ class CustomUserViewSet(
 
     @action(["post"], detail=False)
     def set_password(self, request, *args, **kwargs):
+        """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -90,6 +89,9 @@ class CustomUserViewSet(
         elif settings.CREATE_SESSION_ON_LOGIN:
             update_session_auth_hash(self.request, self.request.user)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+        """
+        return super().set_password()
 
     @action(['get'], detail=False)
     def subscriptions(self, request, *args, **kwargs):
