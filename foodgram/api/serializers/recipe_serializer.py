@@ -73,7 +73,11 @@ class UsersChoiceRecipeSerializer(BaseRecipeSerializer):
     Класc модели, id пользователя и метод запроса получает через context.
 
     """
-    def validate(self, attrs):
+    def to_internal_value(self, data):
+        # TODO принимать данные здесь!
+        return data
+
+    def validate(self, attr):
         recipe_id = self.initial_data['id']
         user_id = self.context['user_id']
         method = self.context['method']

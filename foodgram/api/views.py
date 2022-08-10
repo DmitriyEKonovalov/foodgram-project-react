@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.db.models import Prefetch
+from django.db.models import Sum
 
 from rest_framework import mixins
 from rest_framework import viewsets
@@ -7,6 +8,7 @@ from rest_framework import generics, status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.http import HttpResponse
 
 from recipes.models import (
     Ingredient,
@@ -60,10 +62,28 @@ class RecipeViewSet(viewsets.ModelViewSet):
         queryset = Recipe.objects.select_related('author').prefetch_related('ingredients', 'tags').all()
         return queryset
 
-    @action(['get'], detail=True, url_path=r'download_shopping_cart')
+    @action(['get'], detail=False, url_path=r'download_shopping_cart')
     def download_shopping_cart(self, request, *args, **kwargs):
         """Скачать список покупок (recipes/download_shopping_cart/)."""
-        return self.retrieve(request, *args, **kwargs)
+        recipes = request.user.cart.values_list('recipe_id', flat=True)
+        ingredients_list = RecipeIngredients.objects.filter(
+            recipe__in=recipes
+        ).select_related(
+            'ingredient'
+        ).values(
+            'ingredient__name',
+            'ingredient__measurement_unit'
+        ).annotate(
+            total=Sum('amount')
+        ).values_list(
+            'ingredient__name',
+            'total',
+            'ingredient__measurement_unit'
+        ).all()
+        content = '\n'.join([f'{i} - {t} {m}' for (i, t, m) in ingredients_list])
+        response = HttpResponse(content, content_type='application/txt')
+        response['Content-Disposition'] = 'attachment; filename=shopping-list'
+        return response
 
     @action(['post', 'delete'], detail=True, url_path=r'shopping_cart')
     def shopping_cart(self, request, *args, **kwargs):
