@@ -6,41 +6,49 @@ from .models import (
     Recipe,
     RecipeIngredients,
     ShoppingCart,
-    Subscribe
+    Subscribe,
+    Tag
 )
 
 
-@admin.register(Favorite)
-class FavoriteAdmin(admin.ModelAdmin):
-    # list_display = '__all__'
-    pass
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'slug', 'color')
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    # list_display = '__all__'
-    pass
+    list_display = ('name', 'measurement_unit')
+    list_filter = ('name',)
 
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    # list_display = '__all__'
-    pass
+    list_display = ('name', 'author')
+    list_filter = ('author', 'name', 'tags')
+    readonly_fields = ['in_favorite_count']
+
+    def in_favorite_count(self, obj):
+        return obj.in_favor.count()
 
 
 @admin.register(RecipeIngredients)
-class RecipeingredientsAdmin(admin.ModelAdmin):
-    # list_display = '__all__'
-    pass
-
-
-@admin.register(ShoppingCart)
-class ShoppingCartAdmin(admin.ModelAdmin):
-    # list_display = '__all__'
-    pass
+class RecipeIngredientsAdmin(admin.ModelAdmin):
+    list_display = ('recipe', 'ingredient')
 
 
 @admin.register(Subscribe)
 class SubscribeAdmin(admin.ModelAdmin):
-    # list_display = '__all__'
-    pass
+    list_display = ('user', 'author')
+
+
+@admin.register(ShoppingCart)
+class ShoppingCartAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'recipe')
+
+
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'recipe')
+
+

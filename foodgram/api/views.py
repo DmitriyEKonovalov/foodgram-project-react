@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.db.models import Prefetch
 from django.db.models import Sum
+from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import mixins
 from rest_framework import viewsets
@@ -26,6 +27,7 @@ from .serializers.users_serializers import SubscribeSerializer
 from .serializers.users_serializers import UserWithRecipesSerializer
 from .serializers.recipe_serializer import RecipeSerializer
 from .serializers.recipe_serializer import UsersChoiceRecipeSerializer
+from .filters import RecipeFilter
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -39,7 +41,10 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    queryset = Recipe.objects.select_related('author').prefetch_related('ingredients', 'tags').all()
     serializer_class = RecipeSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = RecipeFilter
 
     def _users_recipe(self, model, recipe_id):
         """Универсальная функция для создания записей в shopping_cart и favorite."""
@@ -57,10 +62,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe = get_object_or_404(Recipe, id=recipe_id)
             model.objects.filter(user=user_id, recipe=recipe.id).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-
+    """
     def get_queryset(self):
         queryset = Recipe.objects.select_related('author').prefetch_related('ingredients', 'tags').all()
         return queryset
+    """
 
     @action(['get'], detail=False, url_path=r'download_shopping_cart')
     def download_shopping_cart(self, request, *args, **kwargs):
