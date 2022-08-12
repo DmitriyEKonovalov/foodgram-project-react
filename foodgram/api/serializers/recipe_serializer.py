@@ -1,15 +1,16 @@
-from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
-
 from recipes.models import (
+    Ingredient,
     Recipe,
     RecipeIngredients,
+    Tag,
 )
+from rest_framework import serializers
 from users.serializers import BaseUserSerializer
 from .base_serializers import (
-    BaseTagSerializer,
     BaseRecipeSerializer,
-    IngredientsInRecipeSerializer,
+    BaseTagSerializer,
+    IngredientsInRecipeSerializer
 )
 
 
@@ -41,9 +42,13 @@ class RecipeSerializer(serializers.ModelSerializer):
         return data
 
     def validate(self, attrs):
-        # проверить наличие всех тегов в базе
-        # проверить наличие всех ингредиентов в базе
-        #
+        cnt = Tag.objects.filter(id__in=attrs['tags']).count()
+        if cnt != len(attrs['tags']):
+            raise serializers.ValidationError('Несуществующий тэг!')
+        ingredients = [item['id'] for item in attrs['ingredients']]
+        cnt = Ingredient.objects.filter(id__in=ingredients).count()
+        if cnt != len(attrs['ingredients']):
+            raise serializers.ValidationError('Несуществующий ингредиент!')
         return attrs
 
     def create(self, validated_data):
@@ -51,7 +56,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags, clear=False)
-        objs = [RecipeIngredients(ingredient_id=i['id'], amount=i['amount']) for i in ingredients]
+        objs = [RecipeIngredients(
+            ingredient_id=i['id'], amount=i['amount']
+        ) for i in ingredients]
         recipe.ingredients.set(objs, bulk=False, clear=False)
         return recipe
 
@@ -61,7 +68,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         Recipe.objects.filter(id=recipe.id).update(**validated_data)
         recipe.tags.set(tags, clear=True)
-        objs = [RecipeIngredients(ingredient_id=i['id'], amount=i['amount']) for i in ingredients]
+        objs = [RecipeIngredients(
+            ingredient_id=i['id'], amount=i['amount']
+        ) for i in ingredients]
         recipe.ingredients.set(objs, bulk=False, clear=True)
         return recipe
 
@@ -82,7 +91,9 @@ class UsersChoiceRecipeSerializer(BaseRecipeSerializer):
         user_id = self.context['user_id']
         method = self.context['method']
         model = self.context['model']
-        users_recipe = model.objects.filter(user=user_id, recipe=recipe_id).exists()
+        users_recipe = model.objects.filter(
+            user=user_id, recipe=recipe_id
+        ).exists()
         if method == 'POST':
             if users_recipe:
                 raise serializers.ValidationError('Рецепт уже добавлен!')
@@ -97,4 +108,3 @@ class UsersChoiceRecipeSerializer(BaseRecipeSerializer):
         recipe = self.Meta.model.objects.get(id=users_recipe.recipe_id)
         self.instance = recipe
         return recipe
-

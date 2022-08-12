@@ -1,24 +1,17 @@
-import uuid
+from api.serializers.users_serializers import (
+    SubscribeSerializer, UserWithRecipesSerializer
+)
+from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import get_object_or_404
-from django.core.mail import send_mail
-from rest_framework import viewsets
-from rest_framework import filters, mixins, permissions
-from rest_framework import generics, status
-from rest_framework.pagination import PageNumberPagination
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import get_user_model, update_session_auth_hash
-from rest_framework import generics, status, views, viewsets
-from rest_framework.decorators import action
-from rest_framework.exceptions import NotFound
-from rest_framework.response import Response
-from django.db.models import Prefetch
-
-from djoser import signals, utils
+from djoser import utils
 from djoser.compat import get_user_email
 from djoser.conf import settings
-from djoser.views import UserViewSet
-from api.serializers.users_serializers import SubscribeSerializer
-from api.serializers.users_serializers import UserWithRecipesSerializer
+from rest_framework import mixins
+from rest_framework import status
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
 from .models import User
 from .serializers import BaseUserSerializer
 
@@ -30,6 +23,7 @@ class CustomUserViewSet(
     viewsets.GenericViewSet
 ):
     queryset = User.objects.all()
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
 
     ACTIONS_SERIALIZERS = {
         'create': settings.SERIALIZERS.user_create,
@@ -37,17 +31,10 @@ class CustomUserViewSet(
         'retrieve': BaseUserSerializer,
         'me': BaseUserSerializer,
         'subscribe': SubscribeSerializer,
+        'subscriptions': UserWithRecipesSerializer,
         'set_password': settings.SERIALIZERS.set_password,
 
     }
-    """
-    def get_queryset(self):
-        user = self.request.user
-        queryset = super().get_queryset()
-        if settings.HIDE_USERS and self.action == "list" and not user.is_staff:
-            queryset = queryset.filter(pk=user.pk)
-        return queryset
-    """
 
     def get_permissions(self):
         if self.action == "create":
@@ -55,13 +42,7 @@ class CustomUserViewSet(
         return super().get_permissions()
 
     def get_serializer_class(self):
-        serializer_class = self.ACTIONS_SERIALIZERS.get(self.action)
-        if serializer_class:
-            return serializer_class
-        return self.serializer_class
-
-    # def get_instance(self):
-    #     return self.request.user
+        return self.ACTIONS_SERIALIZERS.get(self.action)
 
     def get_object(self):
         return self.request.user
@@ -72,7 +53,6 @@ class CustomUserViewSet(
 
     @action(["post"], detail=False)
     def set_password(self, request, *args, **kwargs):
-        """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -82,7 +62,9 @@ class CustomUserViewSet(
         if settings.PASSWORD_CHANGED_EMAIL_CONFIRMATION:
             context = {"user": self.request.user}
             to = [get_user_email(self.request.user)]
-            settings.EMAIL.password_changed_confirmation(self.request, context).send(to)
+            settings.EMAIL.password_changed_confirmation(
+                self.request, context
+            ).send(to)
 
         if settings.LOGOUT_ON_PASSWORD_CHANGE:
             utils.logout_user(self.request)
@@ -90,23 +72,18 @@ class CustomUserViewSet(
             update_session_auth_hash(self.request, self.request.user)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-        """
-        return super().set_password()
-
     @action(['get'], detail=False)
     def subscriptions(self, request, *args, **kwargs):
         user = request.user
         subscribed = user.subscribed.values_list('author_id', flat=True).all()
         queryset = User.objects.filter(id__in=subscribed).all()
-
-        # pages = self.paginate_queryset(queryset)
-        serializer = UserWithRecipesSerializer(
-            queryset,
-            # pages,
-            many=True,
-            context={'request': request}
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(
+            queryset, many=True, context={'request': request}
         )
-        # return self.get_paginated_response(serializer.data)
         return Response(serializer.data)
 
     @action(['post', 'delete'], detail=True)
@@ -120,14 +97,14 @@ class CustomUserViewSet(
         }
         context = {'request': request, 'user': user, 'author': author}
         serializer = SubscribeSerializer(data=data, context=context)
-
-        if request.method == 'POST' and serializer.is_valid(raise_exception=True):
+        # CREATE
+        if (
+                request.method == 'POST'
+                and serializer.is_valid(raise_exception=True)
+        ):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
         # DELETE
         if serializer.is_valid(raise_exception=True):
             subscribe.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-

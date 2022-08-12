@@ -1,7 +1,8 @@
-from rest_framework import serializers
 from recipes.models import Subscribe
+from rest_framework import serializers
 from users.models import User
 from users.serializers import BaseUserSerializer
+
 from .base_serializers import BaseRecipeSerializer
 
 
@@ -26,7 +27,6 @@ class SubscribeSerializer(UserWithRecipesSerializer):
                   'is_subscribed', 'recipes', 'recipes_count')
 
     def to_internal_value(self, data):
-        # self.instance = self.context['author']
         return self.context['author']
 
     def validate(self, attrs):
@@ -50,4 +50,3 @@ class SubscribeSerializer(UserWithRecipesSerializer):
         user_id = self.context['user'].id
         Subscribe.objects.create(author_id=author_id, user_id=user_id)
         return self.context['author']
-

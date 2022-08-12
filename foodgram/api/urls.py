@@ -1,14 +1,8 @@
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenBlacklistView
-from django.urls import include
-from django.urls import path
-from .views import IngredientViewSet, TagViewSet, RecipeViewSet
+from .views import IngredientViewSet, RecipeViewSet, TagViewSet
 
 app_name = 'api'
-
-"""
-"""
-
 
 router = DefaultRouter()
 
@@ -45,4 +39,3 @@ urlpatterns = [
         include(router.urls)
     ),
 ]
-

@@ -1,7 +1,8 @@
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenBlacklistView
-from django.urls import include
-from django.urls import path
+from rest_framework_simplejwt.views import (TokenBlacklistView,
+                                            TokenObtainPairView)
+
 from .views import CustomUserViewSet
 
 app_name = 'users'
@@ -44,4 +45,3 @@ urlpatterns = [
         name='logout'
     )
 ]
-
