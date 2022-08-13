@@ -17,8 +17,7 @@ class UserWithRecipesSerializer(BaseUserSerializer):
                   'is_subscribed', 'recipes', 'recipes_count')
 
     def get_recipes_count(self, obj):
-        recipes = obj.recipes.count()
-        return recipes
+        return obj.recipes.count()
 
 
 class SubscribeSerializer(UserWithRecipesSerializer):
@@ -53,6 +52,8 @@ class SubscribeSerializer(UserWithRecipesSerializer):
     def save(self, **kwargs):
         author_id = self.validated_data.get('author_id')
         user_id = self.validated_data.get('user_id')
-        subscribe = Subscribe.objects.create(author_id=author_id, user_id=user_id)
+        subscribe = Subscribe.objects.create(
+            author_id=author_id, user_id=user_id
+        )
         self.instance = subscribe.author
         return self.instance
