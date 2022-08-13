@@ -1,4 +1,5 @@
 from django.db import models
+
 from users.models import User
 
 
@@ -7,19 +8,16 @@ class Tag(models.Model):
         verbose_name='Название',
         max_length=200,
         unique=True,
-        blank=False
     )
     color = models.CharField(
         verbose_name='Цвет',
         max_length=16,
         unique=True,
-        blank=False
 
     )
     slug = models.SlugField(
         verbose_name='Slug',
         unique=True,
-        blank=False
     )
 
     class Meta:
@@ -39,12 +37,10 @@ class Ingredient(models.Model):
         verbose_name='Название',
         max_length=200,
         unique=True,
-        blank=False
     )
     measurement_unit = models.CharField(
         verbose_name='Цвет',
         max_length=20,
-        blank=False
 
     )
 
@@ -64,23 +60,19 @@ class Recipe(models.Model):
     name = models.CharField(
         verbose_name='Название',
         max_length=200,
-        blank=False
     )
     author = models.ForeignKey(
         User,
         related_name='recipes',
         verbose_name='Автор',
         on_delete=models.CASCADE,
-        null=True,
     )
     text = models.TextField(
         verbose_name='Описание',
-        blank=False
     )
     image = models.ImageField(
         upload_to='upload/',
         verbose_name='Картинка',
-        blank=False
     )
     tags = models.ManyToManyField(
         Tag,
@@ -88,14 +80,12 @@ class Recipe(models.Model):
         verbose_name='Тэги',
         blank=True,
     )
-    cooking_time = models.IntegerField(
+    cooking_time = models.PositiveIntegerField(
         verbose_name='Время приготовления (в минутах)',
-        blank=False
     )
     pub_date = models.DateTimeField(
         'Дата публикации',
         auto_now_add=True,
-        blank=True
     )
 
     class Meta:
@@ -110,7 +100,7 @@ class Recipe(models.Model):
         return self.__repr__()
 
 
-class RecipeIngredients(models.Model):
+class RecipeIngredient(models.Model):
 
     recipe = models.ForeignKey(
         Recipe,
@@ -124,13 +114,12 @@ class RecipeIngredients(models.Model):
         on_delete=models.CASCADE,
         verbose_name='используется в рецептах',
     )
-    amount = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
+    amount = models.PositiveIntegerField(
         verbose_name='Кол-во',
     )
 
     class Meta:
+        indexes = [models.Index(fields=('recipe', 'ingredient'))]
         verbose_name = 'Состав рецепта (ингридиенты)'
         verbose_name_plural = 'Составы рецептов (ингридиенты)'
 
@@ -156,9 +145,9 @@ class ShoppingCart(models.Model):
     )
 
     class Meta:
+        indexes = [models.Index(fields=('user', 'recipe'))]
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзины'
-        unique_together = ('user', 'recipe')
 
 
 class Favorite(models.Model):
@@ -176,9 +165,9 @@ class Favorite(models.Model):
     )
 
     class Meta:
+        indexes = [models.Index(fields=('user', 'recipe'))]
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
-        unique_together = ('user', 'recipe')
 
 
 class Subscribe(models.Model):
@@ -196,6 +185,6 @@ class Subscribe(models.Model):
     )
 
     class Meta:
+        indexes = [models.Index(fields=('user', 'author'))]
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
-        unique_together = ('user', 'author')

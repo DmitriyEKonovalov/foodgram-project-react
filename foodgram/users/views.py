@@ -1,6 +1,3 @@
-from api.serializers.users_serializers import (
-    SubscribeSerializer, UserWithRecipesSerializer
-)
 from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import get_object_or_404
 from djoser import utils
@@ -12,6 +9,10 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
+
+from api.serializers.users_serializers import (
+    SubscribeSerializer, UserWithRecipesSerializer
+)
 from .models import User
 from .serializers import BaseUserSerializer
 
@@ -75,8 +76,8 @@ class CustomUserViewSet(
     @action(['get'], detail=False)
     def subscriptions(self, request, *args, **kwargs):
         user = request.user
-        subscribed = user.subscribed.values_list('author_id', flat=True).all()
-        queryset = User.objects.filter(id__in=subscribed).all()
+        subscribed = user.subscribed.values_list('author_id', flat=True)
+        queryset = User.objects.filter(id__in=subscribed)
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -90,21 +91,18 @@ class CustomUserViewSet(
     def subscribe(self, request, *args, **kwargs):
         user = request.user
         author = get_object_or_404(User, id=kwargs['pk'])
-        subscribe = user.subscribed.filter(author=author)
         data = {
-            'user': user,
-            'author': author
+            'user_id': user.id,
+            'author_id': author.id,
+            'method': self.request.method
         }
-        context = {'request': request, 'user': user, 'author': author}
+        context = {'user': user}
         serializer = SubscribeSerializer(data=data, context=context)
+        serializer.is_valid(raise_exception=True)
         # CREATE
-        if (
-                request.method == 'POST'
-                and serializer.is_valid(raise_exception=True)
-        ):
+        if request.method == 'POST':
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         # DELETE
-        if serializer.is_valid(raise_exception=True):
-            subscribe.delete()
+        user.subscribed.filter(author=author).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

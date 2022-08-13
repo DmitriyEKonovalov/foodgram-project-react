@@ -1,5 +1,6 @@
-from recipes.models import Subscribe
 from rest_framework import serializers
+
+from recipes.models import Subscribe
 from users.models import User
 from users.serializers import BaseUserSerializer
 
@@ -21,32 +22,37 @@ class UserWithRecipesSerializer(BaseUserSerializer):
 
 
 class SubscribeSerializer(UserWithRecipesSerializer):
+    author_id = serializers.IntegerField(write_only=True)
+    user_id = serializers.IntegerField(write_only=True)
+    method = serializers.CharField(write_only=True)
+
     class Meta:
         model = User
         fields = ('id', 'username', 'first_name', 'last_name', 'email',
-                  'is_subscribed', 'recipes', 'recipes_count')
-
-    def to_internal_value(self, data):
-        return self.context['author']
+                  'is_subscribed', 'recipes', 'recipes_count',
+                  'author_id', 'user_id', 'method')
 
     def validate(self, attrs):
-        request = self.context['request']
-        user = self.context['user']
-        author = self.context['author']
-        method = request.method
-        subscribe = user.subscribed.filter(author=author).exists()
+        user_id = attrs.get('user_id')
+        author_id = attrs.get('author_id')
+        method = attrs.get('method')
+        is_subscribed = Subscribe.objects.filter(
+            author_id=author_id,
+            user_id=user_id
+        ).exists()
         if method == 'POST':
-            if subscribe:
+            if is_subscribed:
                 raise serializers.ValidationError('Подписка существует!')
-            if user == author:
+            if user_id == author_id:
                 raise serializers.ValidationError('Нельзя подписаться на себя')
         if method == 'DELETE':
-            if not subscribe:
+            if not is_subscribed:
                 raise serializers.ValidationError('подписки не существует')
         return attrs
 
     def save(self, **kwargs):
-        author_id = self.validated_data.id
-        user_id = self.context['user'].id
-        Subscribe.objects.create(author_id=author_id, user_id=user_id)
-        return self.context['author']
+        author_id = self.validated_data.get('author_id')
+        user_id = self.validated_data.get('user_id')
+        subscribe = Subscribe.objects.create(author_id=author_id, user_id=user_id)
+        self.instance = subscribe.author
+        return self.instance

@@ -12,18 +12,21 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 import os
 from datetime import timedelta
-# from pathlib import Path
+from pathlib import Path
+from dotenv import load_dotenv
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+env_file_path = Path(BASE_DIR).parent.joinpath('infra').joinpath('.env')
+load_dotenv(dotenv_path=env_file_path)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+@22acmbm(5-b8e35s@y%k3ti(pmiyyusp40j7mx&nx)60z8yn'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

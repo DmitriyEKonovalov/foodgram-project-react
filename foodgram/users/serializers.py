@@ -17,33 +17,4 @@ class BaseUserSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
-        return (
-            not user.is_anonymous
-            and user.subscribed.filter(author=obj).exists()
-        )
-
-
-"""
-OLD
-class BaseUserSerializer(serializers.ModelSerializer):
-    is_subscribed = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = [
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'email',
-            'is_subscribed',
-        ]
-
-    def get_is_subscribed(self, obj):
-        user = self.context.get('request').user
-        return (
-            not user.is_anonymous
-            and user.subscribed.filter(author=obj).exists()
-        )
-
-"""
+        return user and user.subscribed.filter(author=obj).exists()

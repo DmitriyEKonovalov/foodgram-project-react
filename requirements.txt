@@ -49,3 +49,5 @@ tzdata==2022.1
 uritemplate==4.1.1
 urllib3==1.26.11
 wheel==0.37.1
+
+python-dotenv~=0.20.0
