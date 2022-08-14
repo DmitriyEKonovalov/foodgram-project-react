@@ -19,7 +19,7 @@ services:
 
   web:
     build:
-      context: ../frontend
+      context: ../backend
       dockerfile: Dockerfile
     restart: always
     volumes:
