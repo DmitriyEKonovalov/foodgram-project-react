@@ -32,11 +32,25 @@ class BaseRecipeSerializer(serializers.ModelSerializer):
         read_only_fields = ('name', 'image', 'cooking_time')
 
 
+class ReadIngredientsInRecipeSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(source='ingredient.measurement_unit')
+
+    class Meta:
+        model = RecipeIngredient
+        fields = ('id', 'amount', 'measurement_unit', 'name')
+
+
 class IngredientsInRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField()
-    amount = serializers.IntegerField()
+    id = serializers.IntegerField(write_only=True)
+    amount = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = Ingredient
-        fields = '__all__'
-        read_only_fields = ('name', 'measurement_unit',)
+        fields = ('id', 'amount', 'measurement_unit', 'name')
+        read_only_fields = ('measurement_unit', 'name')
+
+    def to_representation(self, instance):
+        ret = ReadIngredientsInRecipeSerializer(instance=instance).data
+        return ret

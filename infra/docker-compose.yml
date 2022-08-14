@@ -18,7 +18,9 @@ services:
       - db
 
   web:
-    build: ../backend
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
     restart: always
     volumes:
       - static_value:/app/backend/static/

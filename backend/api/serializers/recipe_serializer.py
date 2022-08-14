@@ -1,5 +1,6 @@
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
+
 from recipes.models import (
     Ingredient,
     Recipe,
@@ -27,22 +28,13 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'tags', 'author', 'ingredients', 'name', 'image',
                   'text', 'cooking_time', 'is_favorite', 'is_in_shopping_cart')
 
-    def _save_with_nested_fields(self, validated_data, mode):
-        tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
-        validated_data['author_id'] = self.context.get('request').user.id
-        if mode == 'create':
-            recipe = Recipe.objects.create(**validated_data)
-            clear = False
-        else:
-            recipe = super().update(self.instance, validated_data)
-            clear = False
+    def _save_with_nested_fields(self, recipe, tags, ingredients):
         tag_list_id = [i['id'] for i in tags]
-        recipe.tags.set(tag_list_id, clear=clear)
+        recipe.tags.set(tag_list_id, clear=True)
         objs = [RecipeIngredient(
             ingredient_id=i['id'], amount=i['amount']
         ) for i in ingredients]
-        recipe.ingredients.set(objs, bulk=False, clear=clear)
+        recipe.ingredients.set(objs, bulk=False, clear=True)
         return recipe
 
     def get_is_favorite(self, obj):
@@ -76,11 +68,19 @@ class RecipeSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        recipe = self._save_with_nested_fields(validated_data, 'create')
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
+        validated_data['author_id'] = self.context.get('request').user.id
+        recipe = Recipe.objects.create(**validated_data)
+        self._save_with_nested_fields(recipe, tags, ingredients)
         return recipe
 
     def update(self, instance, validated_data):
-        recipe = self._save_with_nested_fields(validated_data, 'update')
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
+        validated_data['author_id'] = self.context.get('request').user.id
+        recipe = super().update(self.instance, validated_data)
+        self._save_with_nested_fields(recipe, tags, ingredients)
         return recipe
 
 
@@ -113,6 +113,6 @@ class UsersChoiceRecipeSerializer(BaseRecipeSerializer):
     def save(self, **kwargs):
         model = self.context['model']
         users_recipe = model.objects.create(**self.validated_data)
-        recipe = self.Meta.model.objects.get_object_or_404(id=users_recipe.recipe_id)
+        recipe = Recipe.objects.get_object_or_404(id=users_recipe.recipe_id)
         self.instance = recipe
         return recipe

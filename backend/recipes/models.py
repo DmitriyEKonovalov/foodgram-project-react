@@ -89,7 +89,7 @@ class Recipe(models.Model):
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ['-pub_date']
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
@@ -119,7 +119,10 @@ class RecipeIngredient(models.Model):
     )
 
     class Meta:
-        indexes = [models.Index(fields=('recipe', 'ingredient'))]
+        models.UniqueConstraint(
+            fields=['recipe', 'ingredient'],
+            name='unique_ingredient_in_recipe'
+        )
         verbose_name = 'Состав рецепта (ингридиенты)'
         verbose_name_plural = 'Составы рецептов (ингридиенты)'
 
@@ -145,7 +148,10 @@ class ShoppingCart(models.Model):
     )
 
     class Meta:
-        indexes = [models.Index(fields=('user', 'recipe'))]
+        models.UniqueConstraint(
+            fields=['recipe', 'user'],
+            name='unique_recipe_in_cart'
+        )
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзины'
 
@@ -165,7 +171,10 @@ class Favorite(models.Model):
     )
 
     class Meta:
-        indexes = [models.Index(fields=('user', 'recipe'))]
+        models.UniqueConstraint(
+            fields=['recipe', 'user'],
+            name='unique_recipe_in_favor'
+        )
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
 
@@ -185,6 +194,9 @@ class Subscribe(models.Model):
     )
 
     class Meta:
-        indexes = [models.Index(fields=('user', 'author'))]
+        models.UniqueConstraint(
+            fields=['author', 'user'],
+            name='unique_author_subscribe'
+        )
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
