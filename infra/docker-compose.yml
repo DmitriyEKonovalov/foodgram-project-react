@@ -20,7 +20,7 @@ services:
   web:
     build:
       context: backend
-      dockerfile: ../backend/Dockerfile
+      dockerfile: /app/backend/Dockerfile
     restart: always
     volumes:
       - static_value:/app/backend/static/
