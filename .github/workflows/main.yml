@@ -46,6 +46,8 @@ jobs:
         # Пуш образа в Docker Hub 
         uses: docker/build-push-action@v2 
         with:
+          context: .
+          file: ./backend/Dockerfile
           push: true
           tags: dmitriykonovalov/foodgram-project-react:latest
           
