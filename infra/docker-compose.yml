@@ -11,9 +11,7 @@ services:
   frontend:
     image: dmitriykonovalov/foodgram-project-react-frontend:latest
     volumes:
-      - app/frontend/:/app/result_build/
-    depends_on:
-      - db
+      - ../frontend/:/app/result_build/
 
   web:
     image: dmitriykonovalov/foodgram-project-react-backend:latest
