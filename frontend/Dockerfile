@@ -1,6 +1,6 @@
 # build env
 FROM node:13.12.0-alpine as build
-WORKDIR /app/frontend
+WORKDIR .
 COPY package*.json ./
 RUN npm install
 # COPY . ./
