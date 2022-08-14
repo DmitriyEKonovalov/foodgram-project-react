@@ -67,6 +67,7 @@ jobs:
               sudo docker-compose rm web
               sudo docker container prune --force
               sudo docker image prune --force
+              ls -a
               touch .env
               echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
               echo DB_NAME=${{ secrets.DB_NAME }} >> .env
