@@ -16,7 +16,8 @@ services:
   #     - ../frontend/:/app/result_build/
 
   frontend:
-    image: dmitriykonovalov/foodgram-project-react-frontend
+    image: dmitriykonovalov/foodgram-project-react-frontend:latest
+    restart: always
     volumes:
       - ../frontend/:/app/result_build/
 
