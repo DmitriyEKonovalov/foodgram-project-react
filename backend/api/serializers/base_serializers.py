@@ -19,10 +19,7 @@ class BaseTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
-        read_only_fields = ('name', 'measurement_unit')
-
-    def to_internal_value(self, data):
-        return {'id': data}
+        read_only_fields = ('id', 'name', 'measurement_unit')
 
 
 class BaseRecipeSerializer(serializers.ModelSerializer):
@@ -54,3 +51,15 @@ class IngredientsInRecipeSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = ReadIngredientsInRecipeSerializer(instance=instance).data
         return ret
+
+"""
+прошлый сериалазер
+class BaseTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = '__all__'
+        read_only_fields = ('name', 'measurement_unit')
+    
+    def to_internal_value(self, data):
+        return {'id': data}
+"""

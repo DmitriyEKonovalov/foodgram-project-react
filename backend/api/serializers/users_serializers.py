@@ -3,7 +3,6 @@ from rest_framework import serializers
 from recipes.models import Subscribe
 from users.models import User
 from users.serializers import BaseUserSerializer
-
 from .base_serializers import BaseRecipeSerializer
 
 
