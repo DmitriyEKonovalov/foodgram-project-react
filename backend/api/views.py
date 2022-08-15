@@ -53,11 +53,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         context = {'user': user, 'model': model, 'method': self.request.method}
         serializer = UsersChoiceRecipeSerializer(data=data, context=context)
         serializer.is_valid(raise_exception=True)
-        # CREATE
+
         if self.request.method == 'POST':
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # DELETE
+
         recipe = get_object_or_404(Recipe, id=recipe_id)
         model.objects.filter(user=user.id, recipe=recipe.id).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

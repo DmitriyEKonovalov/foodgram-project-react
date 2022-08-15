@@ -99,10 +99,8 @@ class CustomUserViewSet(
         context = {'user': user}
         serializer = SubscribeSerializer(data=data, context=context)
         serializer.is_valid(raise_exception=True)
-        # CREATE
         if request.method == 'POST':
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # DELETE
         user.subscribed.filter(author=author).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

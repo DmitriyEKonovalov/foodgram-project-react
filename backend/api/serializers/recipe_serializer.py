@@ -49,7 +49,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         return is_in_shopping_cart
 
     def validate(self, attrs):
-        # validate tags
         tags_id = attrs.get('tags')
         if len(tags_id) != len(set(tags_id)):
             raise serializers.ValidationError('Найдены дубли тэгов!')
@@ -57,7 +56,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         if cnt != len(tags_id):
             raise serializers.ValidationError('Несуществующий тэг!')
 
-        # validate ingredients
         ingredients = attrs.get('ingredients')
         ingrs_id = [item['id'] for item in ingredients]
         if len(ingrs_id) != len(set(ingrs_id)):
@@ -86,8 +84,6 @@ class RecipeSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         self.fields['tags'] = BaseTagSerializer(many=True)
         return super().to_representation(obj)
-
-
 
 
 class UsersChoiceRecipeSerializer(BaseRecipeSerializer):
@@ -122,77 +118,3 @@ class UsersChoiceRecipeSerializer(BaseRecipeSerializer):
         recipe = get_object_or_404(Recipe, id=users_recipe.recipe_id)
         self.instance = recipe
         return recipe
-
-"""
-прошлый 
-
-class RecipeSerializer(serializers.ModelSerializer):
-    ingredients = IngredientsInRecipeSerializer(many=True)
-    tags = BaseTagSerializer(many=True)
-    image = Base64ImageField()
-    author = BaseUserSerializer(read_only=True)
-    is_favorite = serializers.SerializerMethodField(read_only=True)
-    is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = Recipe
-        fields = ('id', 'tags', 'author', 'ingredients', 'name', 'image',
-                  'text', 'cooking_time', 'is_favorite', 'is_in_shopping_cart')
-
-    def _save_with_nested_fields(self, recipe, tags, ingredients):
-        tag_list_id = [i['id'] for i in tags]
-        recipe.tags.set(tag_list_id, clear=True)
-        objs = [RecipeIngredient(
-            ingredient_id=i['id'], amount=i['amount']
-        ) for i in ingredients]
-        recipe.ingredients.set(objs, bulk=False, clear=True)
-        return recipe
-
-    def get_is_favorite(self, obj):
-        user = self.context['request'].user
-        is_favorite = obj.in_favor.filter(user=user).exists()
-        return is_favorite
-
-    def get_is_in_shopping_cart(self, obj):
-        user = self.context['request'].user
-        is_in_shopping_cart = obj.in_cart.filter(user=user).exists()
-        return is_in_shopping_cart
-
-    def validate(self, attrs):
-        # validate tags
-        tags = attrs.get('tags')
-        tags_id = [item['id'] for item in tags]
-        if len(tags_id) != len(set(tags_id)):
-            raise serializers.ValidationError('Найдены дубли тэгов!')
-        cnt = Tag.objects.filter(id__in=tags_id).count()
-        if cnt != len(tags_id):
-            raise serializers.ValidationError('Несуществующий тэг!')
-
-        # validate ingredients
-        ingredients = attrs.get('ingredients')
-        ingrs_id = [item['id'] for item in ingredients]
-        if len(ingrs_id) != len(set(ingrs_id)):
-            raise serializers.ValidationError('Найдены дубли ингредиентов!!')
-        cnt = Ingredient.objects.filter(id__in=ingrs_id).count()
-        if cnt != len(ingrs_id):
-            raise serializers.ValidationError('Несуществующий ингредиент!')
-        return attrs
-
-    def create(self, validated_data):
-        tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
-        validated_data['author_id'] = self.context.get('request').user.id
-        recipe = Recipe.objects.create(**validated_data)
-        self._save_with_nested_fields(recipe, tags, ingredients)
-        return recipe
-
-    def update(self, instance, validated_data):
-        tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
-        validated_data['author_id'] = self.context.get('request').user.id
-        recipe = super().update(self.instance, validated_data)
-        self._save_with_nested_fields(recipe, tags, ingredients)
-        return recipe
-
-
-"""
