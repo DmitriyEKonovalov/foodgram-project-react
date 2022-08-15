@@ -8,17 +8,17 @@ services:
     env_file:
       - ./.env
 
-  frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-    volumes:
-      - ../frontend/:/app/result_build/
-
   # frontend:
-  #   image: dmitriykonovalov/foodgram-project-react-frontend:latest
+  #   build:
+  #     context: ../frontend
+  #     dockerfile: Dockerfile
   #   volumes:
   #     - ../frontend/:/app/result_build/
+
+  frontend:
+    image: dmitriykonovalov/foodgram-project-react-frontend
+    volumes:
+      - ../frontend/:/app/result_build/
 
   # web:
   #   image: dmitriykonovalov/foodgram-project-react-backend:latest
