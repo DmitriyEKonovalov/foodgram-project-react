@@ -16,16 +16,6 @@ services:
   #   volumes:
   #     - ../frontend/:/app/result_build/
 
-  frontend:
-    image: dmitriykonovalov/infra_frontend:latest
-    restart: always
-    volumes:
-      - ../frontend/:/app/result_build/
-    depends_on:
-      - db
-    env_file:
-      - ./.env
-
   web:
     image: dmitriykonovalov/infra-backend:latest
     restart: always
@@ -34,6 +24,16 @@ services:
       - media_value:/app/backend/media/
     depends_on:
       - db
+    env_file:
+      - ./.env
+
+  frontend:
+    image: dmitriykonovalov/infra_frontend:latest
+    restart: always
+    volumes:
+      - ../frontend/:/app/result_build/
+    depends_on:
+      - web
     env_file:
       - ./.env
 
