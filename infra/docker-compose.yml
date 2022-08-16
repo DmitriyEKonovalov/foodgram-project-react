@@ -24,8 +24,8 @@ services:
       - media_value:/app/backend/media/
     depends_on:
       - db
-    env_file:
-      - ./.env
+    # env_file:
+    #   - ./.env
 
   frontend:
     image: dmitriykonovalov/infra_frontend:latest

@@ -63,10 +63,10 @@ jobs:
             key: ${{ secrets.SSH_KEY }}
             passphrase: ${{ secrets.PASSPHRASE }}
             script: |
-              sudo docker-compose stop
-              sudo docker-compose rm web
-              sudo docker container prune --force
-              sudo docker image prune --force
+            #  sudo docker-compose stop
+            # sudo docker-compose rm web
+            #  sudo docker container prune --force
+            #  sudo docker image prune --force
               sudo docker pull ${{ secrets.DOCKER_USERNAME }}/infra_frontend:latest
               sudo docker pull ${{ secrets.DOCKER_USERNAME }}/infra_backend:latest
               
