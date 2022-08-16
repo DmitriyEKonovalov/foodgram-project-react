@@ -21,6 +21,10 @@ services:
     restart: always
     volumes:
       - ../frontend/:/app/result_build/
+    depends_on:
+      - db
+    env_file:
+      - ./.env
 
   web:
     image: dmitriykonovalov/infra-backend:latest
