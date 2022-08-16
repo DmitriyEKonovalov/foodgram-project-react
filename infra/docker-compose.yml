@@ -17,7 +17,7 @@ services:
   #     - ../frontend/:/app/result_build/
 
   frontend:
-    image: dmitriykonovalov/infra-frontend:latest
+    image: dmitriykonovalov/infra_frontend:latest
     restart: always
     volumes:
       - ../frontend/:/app/result_build/
