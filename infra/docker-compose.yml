@@ -8,6 +8,7 @@ services:
     env_file:
       - ./.env
 
+  # исходный код
   # frontend:
   #   build:
   #     context: ../frontend
@@ -16,13 +17,13 @@ services:
   #     - ../frontend/:/app/result_build/
 
   frontend:
-    image: dmitriykonovalov/foodgram-project-react-frontend:latest
+    image: dmitriykonovalov/infra-frontend:latest
     restart: always
     volumes:
       - ../frontend/:/app/result_build/
 
   web:
-    image: dmitriykonovalov/foodgram-project-react-backend:latest
+    image: dmitriykonovalov/infra-backend:latest
     restart: always
     volumes:
       - static_value:/app/backend/static/
@@ -37,7 +38,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
     depends_on:
