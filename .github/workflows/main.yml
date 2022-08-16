@@ -63,10 +63,6 @@ jobs:
             key: ${{ secrets.SSH_KEY }}
             passphrase: ${{ secrets.PASSPHRASE }}
             script: |
-            #  sudo docker-compose stop
-            # sudo docker-compose rm web
-            #  sudo docker container prune --force
-            #  sudo docker image prune --force
               sudo docker pull ${{ secrets.DOCKER_USERNAME }}/infra_frontend:latest
               sudo docker pull ${{ secrets.DOCKER_USERNAME }}/infra_backend:latest
               
@@ -79,7 +75,3 @@ jobs:
               echo DB_PORT=${{ secrets.DB_PORT }} >> .env
               
               sudo docker-compose up -d --build
-            # sudo docker-compose exec -T backend python manage.py makemigrations --noinput
-            # sudo docker-compose exec -T backend python manage.py migrate --noinput
-            # sudo docker-compose exec -T backend python manage.py collectstatic --noinput
-
