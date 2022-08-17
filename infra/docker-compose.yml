@@ -25,8 +25,8 @@ services:
     image: dmitriykonovalov/infra_backend:latest
     restart: always
     volumes:
-      - static_value:/app/backend/static/
-      - media_value:/app/backend/media/
+      - backend_static:/app/static/
+      - backend_media:/app/media/
     depends_on:
       - db
     env_file:
