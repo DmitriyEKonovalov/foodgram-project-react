@@ -18,13 +18,8 @@ services:
 
   frontend:
     image: dmitriykonovalov/infra_frontend:latest
-    restart: always
     volumes:
       - ../frontend/:/app/result_build/
-    depends_on:
-      - db
-    # env_file:
-    #   - ./.env
 
   web:
     image: dmitriykonovalov/infra_backend:latest
