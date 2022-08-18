@@ -80,8 +80,4 @@ jobs:
               sudo docker-compose exec -T web python ./backend/manage.py migrate --noinput
               sudo docker-compose exec -T web python ./backend/manage.py collectstatic --noinput
               
-              sudo docker-compose exec -T web bash \
-              DJANGO_SUPERUSER_USERNAME=admin \
-              DJANGO_SUPERUSER_PASSWORD=0adminuser \
-              DJANGO_SUPERUSER_EMAIL="admin@admin.admin" \
-              python ./backend/manage.py createsuperuser --noinput
+              sudo docker-compose exec -T web python ./backend/manage.py create_admin --noinput
