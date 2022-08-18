@@ -83,4 +83,4 @@ jobs:
               sudo docker-compose exec -T web export DJANGO_SUPERUSER_USERNAME=${{ secrets.DJANGO_SUPERUSER_USERNAME }}
               sudo docker-compose exec -T web export DJANGO_SUPERUSER_PASSWORD=${{ secrets.DJANGO_SUPERUSER_PASSWORD }}
               sudo docker-compose exec -T web export DJANGO_SUPERUSER_EMAIL=${{ secrets.DJANGO_SUPERUSER_EMAIL }}
-              sudo docker-compose exec -T web export backend/python manage.py createsuperuser --noinput
+              sudo docker-compose exec -T web backend/python manage.py createsuperuser --noinput
