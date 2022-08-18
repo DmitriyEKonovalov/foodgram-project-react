@@ -9,12 +9,13 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from api.serializers.users_serializers import (
     SubscribeSerializer, UserWithRecipesSerializer
 )
 from .models import User
-from .serializers import BaseUserSerializer
+from .serializers import BaseUserSerializer, EmailTokenObtainSerializer
 
 
 class CustomUserViewSet(
@@ -104,3 +105,8 @@ class CustomUserViewSet(
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         user.subscribed.filter(author=author).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+## новая вьюшка для аутентификации по емэйлу
+class EmailTokenObtainPairView(TokenObtainPairView):
+    serializer_class = EmailTokenObtainSerializer
