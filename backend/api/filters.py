@@ -1,4 +1,4 @@
-from django_filters.rest_framework import DjangoFilterBackend, FilterSet
+from django_filters.rest_framework import DjangoFilterBackend, FilterSet, CharFilter
 from django_filters.rest_framework import AllValuesMultipleFilter, ModelChoiceFilter, ChoiceFilter
 
 from recipes.models import Recipe, Ingredient
@@ -17,9 +17,8 @@ class RecipeFilter(FilterSet):
 
 
 class IngredientFilter(FilterSet):
+    name = CharFilter(lookup_expr='contains')
 
     class Meta:
         model = Ingredient
-        fields = {
-            'name': 'icontains'
-        }
+        fields = ['name']
