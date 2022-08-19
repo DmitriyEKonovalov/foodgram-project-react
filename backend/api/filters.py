@@ -2,6 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend, FilterSet, CharFi
 from django_filters.rest_framework import (
     AllValuesMultipleFilter, MultipleChoiceFilter,
     ModelMultipleChoiceFilter, ModelChoiceFilter, ChoiceFilter
+)
 
 from recipes.models import Recipe, Ingredient
 from users.models import User
