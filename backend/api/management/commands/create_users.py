@@ -18,7 +18,7 @@ class Command(BaseCommand):
             'is_superuser': True
         })
         User.objects.create_user({
-            'id': 1,
+            'id': 2,
             'username': 'user1',
             'password': '1adminuser',
             'firstname': 'Шеф по супам',
@@ -27,7 +27,7 @@ class Command(BaseCommand):
             'is_superuser': Fals
         })
         User.objects.create_user({
-            'id': 2,
+            'id': 3,
             'username': 'user2',
             'password': '2adminuser',
             'firstname': 'Шеф по выпечке',
