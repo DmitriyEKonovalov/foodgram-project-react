@@ -24,7 +24,7 @@ class Command(BaseCommand):
             'firstname': 'Шеф по супам',
             'is_staff': False,
             'is_active': True,
-            'is_superuser': Fals
+            'is_superuser': False
         })
         User.objects.create_user({
             'id': 3,
