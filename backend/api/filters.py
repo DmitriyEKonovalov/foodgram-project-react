@@ -9,8 +9,10 @@ from users.models import User
 
 
 class RecipeFilter(FilterSet):
-    tags = MultipleChoiceFilter(
-        field_name='tags__id')
+    tags = AllValuesMultipleFilter(
+        field_name='tags__slug',
+        to_field_name='slug',
+    )
     author = ModelChoiceFilter(
         queryset=User.objects.all())
 
