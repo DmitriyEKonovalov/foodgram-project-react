@@ -27,3 +27,4 @@ class Command(BaseCommand):
                 model.objects.bulk_create(model(**data) for data in reader)
 
         self.stdout.write(self.style.SUCCESS('Data loaded successfully'))
+
