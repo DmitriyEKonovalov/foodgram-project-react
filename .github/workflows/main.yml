@@ -85,3 +85,4 @@ jobs:
               sudo docker-compose exec -T web python ./backend/manage.py collectstatic --noinput
               
               sudo docker-compose exec -T web python ./backend/manage.py create_admin
+              sudo docker-compose exec -T web python ./backend/manage.py load_csv

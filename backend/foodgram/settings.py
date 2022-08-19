@@ -103,9 +103,7 @@ REST_FRAMEWORK = {
     #     'rest_framework.authentication.TokenAuthentication',
     # ],
 
-    'DEFAULT_FILTER_BACKENDS': [
-        'rest_framework.authentication.TokenAuthentication',
-    ],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 6,
@@ -117,6 +115,7 @@ SIMPLE_JWT = {
    'ACCESS_TOKEN_LIFETIME': timedelta(days=20),
    # 'AUTH_HEADER_TYPES': ('Bearer',),
    'AUTH_HEADER_TYPES': ('Token',),
+
 }
 
 LANGUAGE_CODE = 'en-us'
