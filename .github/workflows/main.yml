@@ -80,6 +80,8 @@ jobs:
               echo DJANGO_SUPERUSER_PASSWORD=${{ secrets.DJANGO_SUPERUSER_PASSWORD }} >> .env
               echo DJANGO_SUPERUSER_USERNAME=${{ secrets.DJANGO_SUPERUSER_USERNAME }} >> .env
               
+              sudo docker-compose exec -T web python ./backend/manage.py reset_db --noinput
+              
               sudo docker-compose exec -T web python ./backend/manage.py makemigrations --noinput
               sudo docker-compose exec -T web python ./backend/manage.py migrate --noinput
               sudo docker-compose exec -T web python ./backend/manage.py collectstatic --noinput
