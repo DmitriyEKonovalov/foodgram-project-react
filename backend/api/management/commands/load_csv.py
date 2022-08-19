@@ -21,6 +21,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         for model, filename in TABLES:
             file_path = Path(settings.BASE_DIR).parent.joinpath('data').joinpath(filename)
+            self.stdout.write(self.style.INFOS(f'start loading {filename}'))
             with open(file_path, 'r', encoding='utf-8') as csv_file:
                 reader = csv.DictReader(csv_file)
                 model.objects.bulk_create(model(**data) for data in reader)
