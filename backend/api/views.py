@@ -12,13 +12,13 @@ from recipes.models import (
     ShoppingCart, Tag
 )
 from .filters import RecipeFilter, IngredientFilter
+from .paginators import CustomPageNumberPagination
 from .serializers.base_serializers import (
     BaseIngredientSerializer, BaseTagSerializer
 )
 from .serializers.recipe_serializer import (
     RecipeSerializer, UsersChoiceRecipeSerializer
 )
-
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
@@ -44,6 +44,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
     permission_classes = [IsAuthenticatedOrReadOnly, ]
+    pagination_class = CustomPageNumberPagination
 
     def _users_recipe(self, model, recipe_id):
         user = self.request.user
