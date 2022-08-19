@@ -11,7 +11,7 @@ from users.models import User
 class RecipeFilter(FilterSet):
     tags = AllValuesMultipleFilter(
         field_name='tags__slug',
-        to_field_name='slug',
+        # to_field_name='slug',
     )
     author = ModelChoiceFilter(
         queryset=User.objects.all())
