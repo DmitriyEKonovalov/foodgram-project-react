@@ -71,6 +71,12 @@ jobs:
               echo DB_HOST=${{ secrets.DB_HOST }} >> .env
               echo DB_PORT=${{ secrets.DB_PORT }} >> .env
               echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
+              
+              sudo docker-compose stop --noinput
+              sudo docker container prune --noinput
+              sudo docker image prune -a --noinput
+              sudo docker volume prune --noinput
+              
               sudo docker pull ${{ secrets.DOCKER_USERNAME }}/infra_backend:latest
               sudo docker pull ${{ secrets.DOCKER_USERNAME }}/infra_frontend:latest
               
