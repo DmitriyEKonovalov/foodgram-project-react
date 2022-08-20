@@ -8,6 +8,7 @@ from recipes.models import (
     RecipeIngredient,
     Tag,
 )
+from users.models import CustomUser
 from users.serializers import BaseUserSerializer
 from .base_serializers import (
     BaseRecipeSerializer,
@@ -102,6 +103,25 @@ class UsersChoiceRecipeSerializer(BaseRecipeSerializer):
         read_only_fields = ('name', 'image', 'cooking_time')
 
     def validate(self, attr):
+        user = get_object_or_404(CustomUser, id=attr.get('user_id'))
+        recipe = get_object_or_404(Recipe, id=attr.get('recipe_id'))
+        return {'recipe': recipe, 'user': user}
+
+    def save(self, **kwargs):
+        model = self.context['model']
+        user = self.validated_data['user']
+        recipe = self.validated_data['recipe']
+        users_recipe = model.objects.filter(user=user, recipe=recipe)
+        if users_recipe.exists():
+            users_recipe.delete()
+            self.instance = None
+        else:
+            users_recipe = model.objects.create(**self.validated_data)
+            self.instance = recipe
+        return self.instance
+
+    """
+    def validate(self, attr):
         recipe_id = attr.get('recipe_id')
         user_id = attr.get('user_id')
         method = self.context.get('method')
@@ -109,9 +129,9 @@ class UsersChoiceRecipeSerializer(BaseRecipeSerializer):
         users_recipe = model.objects.filter(
             user=user_id, recipe=recipe_id
         ).exists()
-        # if method == 'POST':
-        #     if users_recipe:
-        #         raise serializers.ValidationError('Рецепт уже добавлен!')
+        if method == 'POST':
+            if users_recipe:
+                raise serializers.ValidationError('Рецепт уже добавлен!')
         if method == 'DELETE':
             if not users_recipe:
                 raise serializers.ValidationError('Рецепт отсутствует!')
@@ -119,8 +139,9 @@ class UsersChoiceRecipeSerializer(BaseRecipeSerializer):
 
     def save(self, **kwargs):
         model = self.context['model']
-        # users_recipe = model.objects.create(**self.validated_data)
-        users_recipe = model.objects.get_or_create(**self.validated_data)
+        users_recipe = model.objects.create(**self.validated_data)
+        # users_recipe = model.objects.get_or_create(**self.validated_data)
         recipe = get_object_or_404(Recipe, id=users_recipe.recipe_id)
         self.instance = recipe
         return recipe
+    """
