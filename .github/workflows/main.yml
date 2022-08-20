@@ -72,10 +72,10 @@ jobs:
               echo DB_PORT=${{ secrets.DB_PORT }} >> .env
               echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
               
-              sudo docker-compose stop --noinput
-              sudo docker container prune --noinput
-              sudo docker image prune -a --noinput
-              sudo docker volume prune --noinput
+              sudo docker-compose stop --force
+              sudo docker container prune --force
+              sudo docker image prune -a --force
+              sudo docker volume prune --force
               
               sudo docker pull ${{ secrets.DOCKER_USERNAME }}/infra_backend:latest
               sudo docker pull ${{ secrets.DOCKER_USERNAME }}/infra_frontend:latest
@@ -92,5 +92,7 @@ jobs:
               sudo docker-compose exec -T web python ./backend/manage.py migrate --noinput
               sudo docker-compose exec -T web python ./backend/manage.py collectstatic --noinput
               
-              sudo docker-compose exec -T web python ./backend/manage.py create_users
-              sudo docker-compose exec -T web python ./backend/manage.py load_csv
+              sudo docker-compose exec -T web python ./backend/manage.py loaddata ./data/db.json --noinput
+              
+              # sudo docker-compose exec -T web python ./backend/manage.py create_users
+              # sudo docker-compose exec -T web python ./backend/manage.py load_csv

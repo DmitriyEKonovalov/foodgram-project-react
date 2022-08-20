@@ -1,11 +1,7 @@
-name,color,slug
-рыбное,#0099ff,fish
-мясное,#ba0000,meat
-вегетарианское,#46ff00,vegan
-острое,#ff6600,hot
-сладкое,#00c6ff,sweet
-быстрое,#faff00,fast
-летнее меню,#659304,summer
-закуска,#fa8410,apperetive
-завтрак,#ff006f,breakefast
-десерт,#cfff00,dessert
+id,name,color,slug
+1,рыбное,#0099ff,fish
+2,мясное,#ba0000,meat
+3,супы,#46ff00,soup
+4,острое,#ff6600,hot
+5,десерт,#cfff00,dessert
+6,салаты,#cf0000,salad

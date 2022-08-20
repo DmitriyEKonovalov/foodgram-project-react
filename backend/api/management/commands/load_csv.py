@@ -3,7 +3,7 @@ from pathlib import Path
 from django.conf import settings
 from django.core.management import BaseCommand
 
-from recipes.models import Ingredient, Tag, Recipe
+from recipes.models import Ingredient, Tag, Recipe, Favorite, RecipeIngredient, ShoppingCart
 from users.models import User
 
 TABLES = [
