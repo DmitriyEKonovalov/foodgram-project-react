@@ -56,6 +56,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             is_in_shopping_cart_filter = self.request.query_params.get('is_in_shopping_cart')
             if is_in_shopping_cart_filter == '1':
                 queryset = queryset.filter(is_in_shopping_cart=True)
+
+            is_favorite = self.request.query_params.get('is_favorite')
+            if is_favorite == '1':
+                queryset = queryset.filter(is_favorite=True)
+
         return queryset
 
     def _users_recipe(self, model, recipe_id):
@@ -97,7 +102,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).all()
         text = '\n'.join([f'{i} - {t} {m}' for (i, t, m) in ingredients_list])
         response = HttpResponse(text, content_type='application/txt')
-        response['Content-Disposition'] = 'attachment; filename=shopping-list'
+        response['Content-Disposition'] = 'attachment; filename=shopping-list.txt'
         return response
 
     @action(['post', 'delete'], detail=True, url_path=r'shopping_cart')
