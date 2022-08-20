@@ -50,7 +50,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         if user.is_authenticated:
             queryset = queryset.annotate(
-                is_favorite=Exists(Favorite.objects.filter(recipe=OuterRef('pk'), user=user)),
+                is_favorited=Exists(Favorite.objects.filter(recipe=OuterRef('pk'), user=user)),
                 is_in_shopping_cart=Exists(ShoppingCart.objects.filter(recipe=OuterRef('pk'), user=user))
             )
             is_in_shopping_cart_filter = self.request.query_params.get('is_in_shopping_cart')
@@ -59,7 +59,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
             is_favorited_filter = self.request.query_params.get('is_favorited')
             if is_favorited_filter == '1':
-                queryset = queryset.filter(is_favorite=True)
+                queryset = queryset.filter(is_favorited=True)
 
         return queryset
 
