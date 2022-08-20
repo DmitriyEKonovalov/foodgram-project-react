@@ -92,7 +92,5 @@ jobs:
               sudo docker-compose exec -T web python ./backend/manage.py migrate --noinput
               sudo docker-compose exec -T web python ./backend/manage.py collectstatic --noinput
               
-              sudo docker-compose exec -T web python ./backend/manage.py loaddata ./data/db.json
-              
-              # sudo docker-compose exec -T web python ./backend/manage.py create_users
-              # sudo docker-compose exec -T web python ./backend/manage.py load_csv
+              sudo docker-compose exec -T web python ./backend/manage.py create_users
+              sudo docker-compose exec -T web python ./backend/manage.py load_csv
