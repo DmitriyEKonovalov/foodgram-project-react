@@ -1,4 +1,4 @@
-from django.db.models import Sum
+from django.db.models import Sum, Exists, OuterRef, Count
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -30,21 +30,33 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = BaseIngredientSerializer
     pagination_class = None
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = IngredientFilter
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_class = IngredientFilter
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    queryset = Recipe.objects.select_related(
-        'author'
-    ).prefetch_related(
-        'ingredients', 'tags'
-    ).all()
     serializer_class = RecipeSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
     permission_classes = [IsAuthenticatedOrReadOnly, ]
     pagination_class = CustomPageNumberPagination
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Recipe.objects.select_related(
+            'author'
+        ).prefetch_related(
+            'ingredients', 'tags'
+        )
+        if user.is_authenticated:
+            queryset = queryset.annotate(
+                is_favorite=Exists(Favorite.objects.filter(recipe=OuterRef('pk'), user=user)),
+                is_in_shopping_cart=Exists(ShoppingCart.objects.filter(recipe=OuterRef('pk'), user=user))
+            )
+            is_in_shopping_cart_filter = self.request.query_params.get('is_in_shopping_cart')
+            if is_in_shopping_cart_filter == '1':
+                queryset = queryset.filter(is_in_shopping_cart=True)
+        return queryset
 
     def _users_recipe(self, model, recipe_id):
         user = self.request.user

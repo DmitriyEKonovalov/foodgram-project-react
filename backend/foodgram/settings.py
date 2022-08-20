@@ -11,7 +11,7 @@ load_dotenv(dotenv_path=env_file_path)
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -104,6 +104,10 @@ REST_FRAMEWORK = {
     # ],
 
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+
+    'DEFAULT_PERMISSION_CLASSES': [
+       'rest_framework.permissions.AllowAny',
+    ],
 
     # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     # 'PAGE_SIZE': 6,

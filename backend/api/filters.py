@@ -10,7 +10,7 @@ from users.models import User
 
 class RecipeFilter(FilterSet):
     tags = AllValuesMultipleFilter(
-        field_name='tags__name',
+        field_name='tags__slug',
         # to_field_name='slug',
     )
     author = ModelChoiceFilter(

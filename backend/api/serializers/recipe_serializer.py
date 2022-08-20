@@ -27,7 +27,10 @@ class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'tags', 'author', 'ingredients', 'name', 'image',
-                  'text', 'cooking_time', 'is_favorite', 'is_in_shopping_cart')
+                  'text', 'cooking_time',
+                  'is_favorite',
+                  'is_in_shopping_cart'
+                  )
 
     def _save_with_nested_fields(self, recipe, tags, ingredients):
         tag_list_id = tags
@@ -40,13 +43,15 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_is_favorite(self, obj):
         user = self.context['request'].user
-        is_favorite = obj.in_favor.filter(user=user).exists()
-        return is_favorite
+        if user.is_authenticated:
+            return obj.in_favor.filter(user=user).exists()
+        return False
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context['request'].user
-        is_in_shopping_cart = obj.in_cart.filter(user=user).exists()
-        return is_in_shopping_cart
+        if user.is_authenticated:
+            return obj.in_cart.filter(user=user).exists()
+        return False
 
     def validate(self, attrs):
         tags_id = attrs.get('tags')
