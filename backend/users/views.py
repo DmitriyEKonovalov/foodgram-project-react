@@ -17,8 +17,11 @@ from rest_framework.views import APIView
 from api.serializers.users_serializers import (
     SubscribeSerializer, UserWithRecipesSerializer
 )
-from .models import User
-from .serializers import BaseUserSerializer, EmailTokenObtainSerializer
+from .models import CustomUser
+from .serializers import BaseUserSerializer
+# from .serializers import EmailTokenObtainSerializer
+
+
 
 
 class CustomUserViewSet(
@@ -27,7 +30,7 @@ class CustomUserViewSet(
     mixins.CreateModelMixin,
     viewsets.GenericViewSet
 ):
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly, ]
 
     ACTIONS_SERIALIZERS = {
@@ -109,7 +112,7 @@ class CustomUserViewSet(
         user.subscribed.filter(author=author).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
+"""
 ## новая вьюшка для аутентификации по емэйлу
 class EmailTokenObtainPairView(TokenObtainPairView):
     serializer_class = EmailTokenObtainSerializer
@@ -120,10 +123,10 @@ class LogoutView(APIView):
 
     def post(self, request):
         try:
-            refresh_token = request.data["refresh_token"]
-            token = RefreshToken(refresh_token)
+            token = request.auth.token
             token.blacklist()
 
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+"""

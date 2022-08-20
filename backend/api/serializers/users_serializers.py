@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from recipes.models import Subscribe
-from users.models import User
+from users.models import CustomUser
 from users.serializers import BaseUserSerializer
 from .base_serializers import BaseRecipeSerializer
 
@@ -11,7 +11,7 @@ class UserWithRecipesSerializer(BaseUserSerializer):
     recipes_count = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = ('id', 'username', 'first_name', 'last_name', 'email',
                   'is_subscribed', 'recipes', 'recipes_count')
 
@@ -26,7 +26,7 @@ class SubscribeSerializer(UserWithRecipesSerializer):
     method = serializers.CharField(write_only=True)
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = ('id', 'username', 'first_name', 'last_name', 'email',
                   'is_subscribed', 'recipes', 'recipes_count',
                   'author_id', 'user_id', 'method')

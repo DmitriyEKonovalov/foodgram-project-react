@@ -4,7 +4,7 @@ from rest_framework_simplejwt.serializers import TokenObtainSerializer
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import User
+from .models import CustomUser
 
 
 class BaseUserSerializer(serializers.ModelSerializer):
@@ -15,7 +15,7 @@ class BaseUserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = ('id', 'username', 'first_name', 'last_name', 'email',
                   'is_subscribed')
 
@@ -24,6 +24,7 @@ class BaseUserSerializer(serializers.ModelSerializer):
         return user.is_authenticated and user.subscribed.filter(author=obj).exists()
 
 
+"""
 ### новый сериалайзер для
 class EmailTokenObtainSerializer(TokenObtainSerializer):
     username_field = User.EMAIL_FIELD
@@ -48,3 +49,4 @@ class EmailTokenObtainSerializer(TokenObtainSerializer):
 
         return data
 
+"""

@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from .models import User
+from .models import CustomUser
 
 
-@admin.register(User)
+@admin.register(CustomUser)
 class UserAdmin(admin.ModelAdmin):
-    list_display = '__all__'
+    list_display = ('username', 'first_name', 'last_name', 'email')
     list_filter = ('username', 'email',)

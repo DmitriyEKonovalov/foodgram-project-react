@@ -6,7 +6,6 @@ from django.core.management import BaseCommand
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredient, ShoppingCart, Subscribe, Tag)
 
-from users.models import User
 
 TABLES = [
     (Ingredient, 'ingredients.csv'),

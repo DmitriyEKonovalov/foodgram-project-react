@@ -1,6 +1,8 @@
 import os
 from datetime import timedelta
 from pathlib import Path
+
+import rest_framework.permissions
 from dotenv import load_dotenv
 
 
@@ -24,11 +26,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'rest_framework',
-    # 'rest_framework.authtoken',
-    'rest_framework_simplejwt',
+    'rest_framework.authtoken',
+    # 'rest_framework_simplejwt',
     'drf_spectacular',
     'django_filters',
     'djoser',
+    'users',
     'api',
     'recipes',
 
@@ -95,18 +98,18 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
-
     # 'DEFAULT_AUTHENTICATION_CLASSES': [
-    #     'rest_framework.authentication.TokenAuthentication',
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
     # ],
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
 
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 
     'DEFAULT_PERMISSION_CLASSES': [
-       'rest_framework.permissions.AllowAny',
+       'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
 
     # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
@@ -114,6 +117,8 @@ REST_FRAMEWORK = {
 
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
+AUTH_USER_MODEL = 'users.CustomUser'
 
 SIMPLE_JWT = {
    'ACCESS_TOKEN_LIFETIME': timedelta(days=20),

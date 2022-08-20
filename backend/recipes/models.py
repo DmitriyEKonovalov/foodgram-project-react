@@ -1,6 +1,6 @@
 from django.db import models
 
-from users.models import User
+from users.models import CustomUser
 
 
 class Tag(models.Model):
@@ -62,7 +62,7 @@ class Recipe(models.Model):
         max_length=200,
     )
     author = models.ForeignKey(
-        User,
+        CustomUser,
         related_name='recipes',
         verbose_name='Author',
         on_delete=models.CASCADE,
@@ -137,7 +137,7 @@ class RecipeIngredient(models.Model):
 
 class ShoppingCart(models.Model):
     user = models.ForeignKey(
-        User,
+        CustomUser,
         related_name='cart',
         on_delete=models.CASCADE,
         verbose_name='User',
@@ -162,7 +162,7 @@ class ShoppingCart(models.Model):
 
 class Favorite(models.Model):
     user = models.ForeignKey(
-        User,
+        CustomUser,
         related_name='favorite_recipes',
         on_delete=models.CASCADE,
         verbose_name='Users favorites',
@@ -187,13 +187,13 @@ class Favorite(models.Model):
 
 class Subscribe(models.Model):
     user = models.ForeignKey(
-        User,
+        CustomUser,
         related_name='subscribed',
         on_delete=models.CASCADE,
         verbose_name='Users subscribe',
     )
     author = models.ForeignKey(
-        User,
+        CustomUser,
         related_name='subscribers',
         on_delete=models.CASCADE,
         verbose_name='Subscribers',

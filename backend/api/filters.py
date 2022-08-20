@@ -5,7 +5,7 @@ from django_filters.rest_framework import (
 )
 
 from recipes.models import Recipe, Ingredient
-from users.models import User
+from users.models import CustomUser
 
 
 class RecipeFilter(FilterSet):
@@ -14,7 +14,7 @@ class RecipeFilter(FilterSet):
         # to_field_name='slug',
     )
     author = ModelChoiceFilter(
-        queryset=User.objects.all())
+        queryset=CustomUser.objects.all())
 
     class Meta:
         model = Recipe
