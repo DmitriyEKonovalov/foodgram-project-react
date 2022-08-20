@@ -102,7 +102,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).all()
         text = '\n'.join([f'{i} - {t} {m}' for (i, t, m) in ingredients_list])
         response = HttpResponse(text, content_type='application/txt')
-        response['Content-Disposition'] = 'attachment; filename=shopping-list.txt'
+        response['Content-Disposition'] = 'attachment; filename="shopping-list.txt"'
         return response
 
     @action(['post', 'delete'], detail=True, url_path=r'shopping_cart')

@@ -109,9 +109,9 @@ class UsersChoiceRecipeSerializer(BaseRecipeSerializer):
         users_recipe = model.objects.filter(
             user=user_id, recipe=recipe_id
         ).exists()
-        if method == 'POST':
-            if users_recipe:
-                raise serializers.ValidationError('Рецепт уже добавлен!')
+        # if method == 'POST':
+        #     if users_recipe:
+        #         raise serializers.ValidationError('Рецепт уже добавлен!')
         if method == 'DELETE':
             if not users_recipe:
                 raise serializers.ValidationError('Рецепт отсутствует!')
@@ -119,7 +119,8 @@ class UsersChoiceRecipeSerializer(BaseRecipeSerializer):
 
     def save(self, **kwargs):
         model = self.context['model']
-        users_recipe = model.objects.create(**self.validated_data)
+        # users_recipe = model.objects.create(**self.validated_data)
+        users_recipe = model.objects.get_or_create(**self.validated_data)
         recipe = get_object_or_404(Recipe, id=users_recipe.recipe_id)
         self.instance = recipe
         return recipe
