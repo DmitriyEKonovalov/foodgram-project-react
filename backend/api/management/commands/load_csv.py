@@ -22,7 +22,6 @@ class Command(BaseCommand):
     help = 'Load data from csv files'
 
     def handle(self, *args, **kwargs):
-
         for model, filename in TABLES:
             file_path = Path(settings.BASE_DIR).parent.joinpath('data').joinpath(filename)
             self.stdout.write(self.style.MIGRATE_LABEL(f'start loading {filename}'))

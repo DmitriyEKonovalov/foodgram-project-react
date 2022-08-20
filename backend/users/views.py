@@ -20,7 +20,7 @@ from api.serializers.users_serializers import (
 from .models import CustomUser
 from .serializers import BaseUserSerializer
 # from .serializers import EmailTokenObtainSerializer
-
+from api.paginators import CustomPageNumberPagination
 
 
 
@@ -32,6 +32,7 @@ class CustomUserViewSet(
 ):
     queryset = CustomUser.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly, ]
+    pagination_class = CustomPageNumberPagination
 
     ACTIONS_SERIALIZERS = {
         'create': settings.SERIALIZERS.user_create,
@@ -84,7 +85,7 @@ class CustomUserViewSet(
     def subscriptions(self, request, *args, **kwargs):
         user = request.user
         subscribed = user.subscribed.values_list('author_id', flat=True)
-        queryset = User.objects.filter(id__in=subscribed)
+        queryset = CustomUser.objects.filter(id__in=subscribed)
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -94,10 +95,26 @@ class CustomUserViewSet(
         )
         return Response(serializer.data)
 
+    """
+    @action(['get'], detail=False)
+    def subscriptions(self, request, *args, **kwargs):
+        user = request.user
+        subscribed = user.subscribed.values_list('author_id', flat=True)
+        queryset = CustomUser.objects.filter(id__in=subscribed)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(
+            queryset, many=True, context={'request': request}
+        )
+        return Response(serializer.data)
+    """
+
     @action(['post', 'delete'], detail=True)
     def subscribe(self, request, *args, **kwargs):
         user = request.user
-        author = get_object_or_404(User, id=kwargs['pk'])
+        author = get_object_or_404(CustomUser, id=kwargs['pk'])
         data = {
             'user_id': user.id,
             'author_id': author.id,
