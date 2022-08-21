@@ -3,9 +3,11 @@ from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from recipes.models import (
+    Favorite,
     Ingredient,
     Recipe,
     RecipeIngredient,
+    ShoppingCart,
     Tag,
 )
 from users.models import CustomUser
@@ -92,19 +94,45 @@ class RecipeSerializer(serializers.ModelSerializer):
         return super().to_representation(obj)
 
 
-class UsersChoiceRecipeSerializer(BaseRecipeSerializer):
-    recipe_id = serializers.IntegerField(write_only=True)
-    user_id = serializers.IntegerField(write_only=True)
+class UsersChoiceRecipeReadSerializer(BaseRecipeSerializer):
+    is_favorited = serializers.SerializerMethodField(read_only=True)
+    is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time',
-                  'recipe_id', 'user_id')
-        read_only_fields = ('name', 'image', 'cooking_time')
+                  'is_favorited', 'is_in_shopping_cart')
+
+    def get_is_favorited(self, obj):
+        user = self.context['user']
+        if user.is_authenticated:
+            return obj.in_favor.filter(user=user).exists()
+        return False
+
+    def get_is_in_shopping_cart(self, obj):
+        user = self.context['user']
+        if user.is_authenticated:
+            return obj.in_cart.filter(user=user).exists()
+        return False
+
+
+class UsersChoiceRecipeWriteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Favorite
+        fields = ('recipe', 'user')
+
+    def to_internal_value(self, data):
+        self.Meta.model = self.context.get('model')
+        if not self.Meta.model:
+            raise serializers.ValidationError()
+        return data
 
     def validate(self, attr):
-        user = get_object_or_404(CustomUser, id=attr.get('user_id'))
-        recipe = get_object_or_404(Recipe, id=attr.get('recipe_id'))
+        user = attr.get('user')
+        recipe = attr.get('recipe_id')
+        if not (user and recipe):
+            raise serializers.ValidationError('отсутсвуют данные')
         return {'recipe': recipe, 'user': user}
 
     def save(self, **kwargs):
@@ -114,13 +142,46 @@ class UsersChoiceRecipeSerializer(BaseRecipeSerializer):
         users_recipe = model.objects.filter(user=user, recipe=recipe)
         if users_recipe.exists():
             users_recipe.delete()
-            self.instance = None
+            has_create = False
         else:
             users_recipe = model.objects.create(**self.validated_data)
-            self.instance = recipe
-        return self.instance
+            has_create = True
+        self.instance = recipe
+        ret = UsersChoiceRecipeReadSerializer(instance=recipe, context={'user': user}).data
+        ret['has_create'] = has_create
+        return ret
 
-    """
+
+"""
+старый сериалазер
+class UsersChoiceRecipeSerializer(BaseRecipeSerializer):
+    recipe_id = serializers.IntegerField(write_only=True)
+    user_id = serializers.IntegerField(write_only=True)
+    is_favorited = serializers.SerializerMethodField(read_only=True)
+    is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time',
+                  'recipe_id', 'user_id',
+                  'is_favorited', 'is_in_shopping_cart'
+                  )
+        read_only_fields = ('name', 'image', 'cooking_time',
+                            'is_favorited', 'is_in_shopping_cart')
+
+
+    def get_is_favorited(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return obj.in_favor.filter(user=user).exists()
+        return False
+
+    def get_is_in_shopping_cart(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return obj.in_cart.filter(user=user).exists()
+        return False
+
     def validate(self, attr):
         recipe_id = attr.get('recipe_id')
         user_id = attr.get('user_id')
@@ -144,4 +205,4 @@ class UsersChoiceRecipeSerializer(BaseRecipeSerializer):
         recipe = get_object_or_404(Recipe, id=users_recipe.recipe_id)
         self.instance = recipe
         return recipe
-    """
+"""

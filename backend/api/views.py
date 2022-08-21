@@ -17,8 +17,12 @@ from .serializers.base_serializers import (
     BaseIngredientSerializer, BaseTagSerializer
 )
 from .serializers.recipe_serializer import (
-    RecipeSerializer, UsersChoiceRecipeSerializer
+    RecipeSerializer,
+    # UsersChoiceRecipeSerializer,
+    UsersChoiceRecipeWriteSerializer,
+    UsersChoiceRecipeReadSerializer
 )
+
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
@@ -63,46 +67,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-    """
     def _users_recipe(self, model, recipe_id):
         user = self.request.user
         recipe = get_object_or_404(Recipe, id=recipe_id)
-        data = {
-            'user_id': user.id,
-            'recipe_id': recipe.id,
-        }
-        context = {'user': user, 'model': model, 'method': self.request.method}
-        serializer = UsersChoiceRecipeSerializer(data=data, context=context)
+        data = {'user': user, 'recipe_id': recipe}
+        context = {'model': model}
+        serializer = UsersChoiceRecipeWriteSerializer(data=data, context=context)
         serializer.is_valid(raise_exception=True)
+        response = serializer.save()
+        has_create = response.pop('has_create')
+        # if not has_create:
+        #     return Response(data=response, status=status.HTTP_204_NO_CONTENT)
+        return Response(data=response, status=status.HTTP_201_CREATED)
 
-        if self.request.method == 'POST':
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        recipe = get_object_or_404(Recipe, id=recipe_id)
-        model.objects.filter(user=user.id, recipe=recipe.id).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-        
-    @action(['post', 'delete'], detail=True, url_path=r'shopping_cart')
+    @action(['post'], detail=True, url_path=r'shopping_cart')
     def shopping_cart(self, request, *args, **kwargs):
         return self._users_recipe(model=ShoppingCart, recipe_id=kwargs['pk'])
 
-    @action(['post', 'delete'], detail=True, url_path=r'favorite')
+    @action(['post'], detail=True, url_path=r'favorite')
     def favorite(self, request, *args, **kwargs):
         return self._users_recipe(model=Favorite, recipe_id=kwargs['pk'])
-        
-    """
-
-    def _users_recipe(self, model, recipe_id):
-        user = self.request.user
-        data = {'user_id': user.id, 'recipe_id': recipe_id}
-        context = {'model': model}
-        serializer = UsersChoiceRecipeSerializer(data=data, context=context)
-        serializer.is_valid(raise_exception=True)
-        instance = serializer.save()
-        if instance:
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(['get'], detail=False, url_path=r'download_shopping_cart')
     def download_shopping_cart(self, request, *args, **kwargs):
@@ -127,10 +111,33 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = 'attachment; filename="shopping-list.txt"'
         return response
 
-    @action(['post'], detail=True, url_path=r'shopping_cart')
+    """
+    предыдущий
+    def _users_recipe(self, model, recipe_id):
+        user = self.request.user
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        data = {
+            'user_id': user.id,
+            'recipe_id': recipe.id,
+        }
+        context = {'user': user, 'model': model, 'method': self.request.method}
+        serializer = UsersChoiceRecipeSerializer(data=data, context=context)
+        serializer.is_valid(raise_exception=True)
+
+        if self.request.method == 'POST':
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        model.objects.filter(user=user.id, recipe=recipe.id).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(['post', 'delete'], detail=True, url_path=r'shopping_cart')
     def shopping_cart(self, request, *args, **kwargs):
         return self._users_recipe(model=ShoppingCart, recipe_id=kwargs['pk'])
 
-    @action(['post'], detail=True, url_path=r'favorite')
+    @action(['post', 'delete'], detail=True, url_path=r'favorite')
     def favorite(self, request, *args, **kwargs):
         return self._users_recipe(model=Favorite, recipe_id=kwargs['pk'])
+
+    """
