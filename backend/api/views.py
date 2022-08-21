@@ -70,21 +70,23 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def _users_recipe(self, model, recipe_id):
         user = self.request.user
         recipe = get_object_or_404(Recipe, id=recipe_id)
-        data = {'user': user, 'recipe_id': recipe}
-        context = {'model': model}
+        data = {'user': user.id, 'recipe': recipe_id}
+        context = {'model': model, 'method': self.request.method}
         serializer = UsersChoiceRecipeWriteSerializer(data=data, context=context)
         serializer.is_valid(raise_exception=True)
-        response = serializer.save()
-        has_create = response.pop('has_create')
-        # if not has_create:
-        #     return Response(data=response, status=status.HTTP_204_NO_CONTENT)
-        return Response(data=response, status=status.HTTP_201_CREATED)
 
-    @action(['post'], detail=True, url_path=r'shopping_cart')
+        if self.request.method == 'POST':
+            response = serializer.save()
+            return Response(response, status=status.HTTP_201_CREATED)
+
+        model.objects.filter(user=user, recipe=recipe).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(['post', 'delete'], detail=True, url_path=r'shopping_cart')
     def shopping_cart(self, request, *args, **kwargs):
         return self._users_recipe(model=ShoppingCart, recipe_id=kwargs['pk'])
 
-    @action(['post'], detail=True, url_path=r'favorite')
+    @action(['post', 'delete'], detail=True, url_path=r'favorite')
     def favorite(self, request, *args, **kwargs):
         return self._users_recipe(model=Favorite, recipe_id=kwargs['pk'])
 
@@ -140,4 +142,25 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def favorite(self, request, *args, **kwargs):
         return self._users_recipe(model=Favorite, recipe_id=kwargs['pk'])
 
+    """
+
+    """
+    удачный вариант с toggle mode, с одним методом, но к сожалению 
+    там метод delete используется, а проблема в том 
+    что не было данных о подписке в ответе
+    
+        def _users_recipe(self, model, recipe_id):
+            user = self.request.user
+            recipe = get_object_or_404(Recipe, id=recipe_id)
+            data = {'user': user, 'recipe_id': recipe}
+            context = {'model': model}
+            serializer = UsersChoiceRecipeWriteSerializer(data=data, context=context)
+            serializer.is_valid(raise_exception=True)
+            response = serializer.save()
+            has_create = response.pop('has_create')
+            # if not has_create:
+            #     return Response(data=response, status=status.HTTP_204_NO_CONTENT)
+            return Response(data=response, status=status.HTTP_201_CREATED)
+        
+      
     """
