@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from recipes.models import Subscribe
@@ -55,4 +56,7 @@ class SubscribeSerializer(UserWithRecipesSerializer):
             author_id=author_id, user_id=user_id
         )
         self.instance = subscribe.author
-        return self.instance
+        user = get_object_or_404(CustomUser, id=user_id)
+        ret = BaseUserSerializer(instance=self.instance, context={'user': user}).data
+        return ret
+        # return self.instance
