@@ -41,7 +41,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         objs = [RecipeIngredient(
             ingredient_id=i['id'], amount=i['amount']
         ) for i in ingredients]
-        recipe.ingredients.set(objs, bulk=False, clear=True)
+        RecipeIngredient.objects.filter(recipe=recipe).delete()
+        recipe.ingredients.set(objs, bulk=False, clear=False)
         return recipe
 
     def get_is_favorited(self, obj):
@@ -86,7 +87,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         validated_data['author_id'] = self.context.get('request').user.id
         recipe = super().update(self.instance, validated_data)
-        self._save_with_nested_fields(recipe, tags, ingredients)
+        self._save_with_nested_fields(instance, tags, ingredients)
+        # recipe = super().update(self.instance, validated_data)
+        # self._save_with_nested_fields(recipe, tags, ingredients)
         return recipe
 
     def to_representation(self, obj):
