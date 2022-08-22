@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-print(BASE_DIR)
+# print(BASE_DIR)
+# BASE_DIR = E:\dev\foodgram-project-react\backend
 env_file_path = Path(BASE_DIR).parent.joinpath('infra').joinpath('.env')
 load_dotenv(dotenv_path=env_file_path)
 
