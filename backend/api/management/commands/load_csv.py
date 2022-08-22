@@ -1,5 +1,6 @@
 import csv
 from pathlib import Path
+
 from django.conf import settings
 from django.core.management import BaseCommand
 

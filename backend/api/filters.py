@@ -1,8 +1,6 @@
-from django_filters.rest_framework import DjangoFilterBackend, FilterSet, CharFilter
+from django_filters.rest_framework import FilterSet, CharFilter
 from django_filters.rest_framework import (
-    AllValuesMultipleFilter, MultipleChoiceFilter,
-    ModelMultipleChoiceFilter, ModelChoiceFilter, ChoiceFilter
-)
+    AllValuesMultipleFilter, ModelChoiceFilter)
 
 from recipes.models import Recipe, Ingredient
 from users.models import CustomUser
@@ -11,7 +9,6 @@ from users.models import CustomUser
 class RecipeFilter(FilterSet):
     tags = AllValuesMultipleFilter(
         field_name='tags__slug',
-        # to_field_name='slug',
     )
     author = ModelChoiceFilter(
         queryset=CustomUser.objects.all())

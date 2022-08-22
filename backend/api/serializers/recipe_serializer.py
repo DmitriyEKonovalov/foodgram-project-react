@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
@@ -10,7 +9,6 @@ from recipes.models import (
     ShoppingCart,
     Tag,
 )
-from users.models import CustomUser
 from users.serializers import BaseUserSerializer
 from .base_serializers import (
     BaseRecipeSerializer,
@@ -88,8 +86,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         validated_data['author_id'] = self.context.get('request').user.id
         recipe = super().update(self.instance, validated_data)
         self._save_with_nested_fields(instance, tags, ingredients)
-        # recipe = super().update(self.instance, validated_data)
-        # self._save_with_nested_fields(recipe, tags, ingredients)
         return recipe
 
     def to_representation(self, obj):
@@ -125,12 +121,6 @@ class UsersChoiceRecipeWriteSerializer(serializers.ModelSerializer):
         model = Favorite
         fields = ('recipe', 'user')
 
-    # def to_internal_value(self, data):
-    #     self.Meta.model = self.context.get('model')
-    #     if not self.Meta.model:
-    #         raise serializers.ValidationError()
-    #     return data
-
     def validate(self, attr):
         model = self.context.get('model')
         if not model:
@@ -139,8 +129,6 @@ class UsersChoiceRecipeWriteSerializer(serializers.ModelSerializer):
 
         user = attr.get('user')
         recipe = attr.get('recipe')
-        # user = get_object_or_404(CustomUser, id=attr.get('user').id)
-        # recipe = get_object_or_404(Recipe, id=attr.get('recipe'))
         if not (user and recipe):
             raise serializers.ValidationError('отсутствуют данные')
 
@@ -159,127 +147,7 @@ class UsersChoiceRecipeWriteSerializer(serializers.ModelSerializer):
         user = self.validated_data.get('user')
         recipe = self.validated_data.get('recipe')
         users_recipe = self.Meta.model.objects.create(**self.validated_data)
-        # recipe = get_object_or_404(Recipe, id=users_recipe.recipe_id)
         self.instance = recipe
         ret = UsersChoiceRecipeReadSerializer(instance=recipe, context={'user': user}).data
         return ret
 
-
-"""
-старый сериалазер
-class UsersChoiceRecipeSerializer(BaseRecipeSerializer):
-    recipe_id = serializers.IntegerField(write_only=True)
-    user_id = serializers.IntegerField(write_only=True)
-    is_favorited = serializers.SerializerMethodField(read_only=True)
-    is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time',
-                  'recipe_id', 'user_id',
-                  'is_favorited', 'is_in_shopping_cart'
-                  )
-        read_only_fields = ('name', 'image', 'cooking_time',
-                            'is_favorited', 'is_in_shopping_cart')
-
-
-    def get_is_favorited(self, obj):
-        user = self.context['request'].user
-        if user.is_authenticated:
-            return obj.in_favor.filter(user=user).exists()
-        return False
-
-    def get_is_in_shopping_cart(self, obj):
-        user = self.context['request'].user
-        if user.is_authenticated:
-            return obj.in_cart.filter(user=user).exists()
-        return False
-
-    def validate(self, attr):
-        recipe_id = attr.get('recipe_id')
-        user_id = attr.get('user_id')
-        method = self.context.get('method')
-        model = self.context.get('model')
-        users_recipe = model.objects.filter(
-            user=user_id, recipe=recipe_id
-        ).exists()
-        if method == 'POST':
-            if users_recipe:
-                raise serializers.ValidationError('Рецепт уже добавлен!')
-        if method == 'DELETE':
-            if not users_recipe:
-                raise serializers.ValidationError('Рецепт отсутствует!')
-        return {'recipe_id': recipe_id, 'user_id': user_id}
-
-    def save(self, **kwargs):
-        model = self.context['model']
-        users_recipe = model.objects.create(**self.validated_data)
-        # users_recipe = model.objects.get_or_create(**self.validated_data)
-        recipe = get_object_or_404(Recipe, id=users_recipe.recipe_id)
-        self.instance = recipe
-        return recipe
-"""
-
-"""
-Удачные сериалазеры но работают в режиме toggle, 
-для испольщования одного метода post, но на фронте используется метод delete
-проблема быда олько в нехватет сведений наличи выборанных в ответе
-
-class UsersChoiceRecipeReadSerializer(BaseRecipeSerializer):
-    is_favorited = serializers.SerializerMethodField(read_only=True)
-    is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time',
-                  'is_favorited', 'is_in_shopping_cart')
-
-    def get_is_favorited(self, obj):
-        user = self.context['user']
-        if user.is_authenticated:
-            return obj.in_favor.filter(user=user).exists()
-        return False
-
-    def get_is_in_shopping_cart(self, obj):
-        user = self.context['user']
-        if user.is_authenticated:
-            return obj.in_cart.filter(user=user).exists()
-        return False
-
-
-class UsersChoiceRecipeWriteSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Favorite
-        fields = ('recipe', 'user')
-
-    def to_internal_value(self, data):
-        self.Meta.model = self.context.get('model')
-        if not self.Meta.model:
-            raise serializers.ValidationError()
-        return data
-
-    def validate(self, attr):
-        user = attr.get('user')
-        recipe = attr.get('recipe_id')
-        if not (user and recipe):
-            raise serializers.ValidationError('отсутсвуют данные')
-        return {'recipe': recipe, 'user': user}
-
-    def save(self, **kwargs):
-        model = self.context['model']
-        user = self.validated_data['user']
-        recipe = self.validated_data['recipe']
-        users_recipe = model.objects.filter(user=user, recipe=recipe)
-        if users_recipe.exists():
-            users_recipe.delete()
-            has_create = False
-        else:
-            users_recipe = model.objects.create(**self.validated_data)
-            has_create = True
-        self.instance = recipe
-        ret = UsersChoiceRecipeReadSerializer(instance=recipe, context={'user': user}).data
-        ret['has_create'] = has_create
-        return ret
-
-"""

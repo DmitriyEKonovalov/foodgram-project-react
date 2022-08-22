@@ -7,20 +7,15 @@ from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.response import Response
-from rest_framework.views import APIView
+
 from api.serializers.users_serializers import (
     SubscribeSerializer, UserWithRecipesSerializer
 )
+from api.paginators import CustomPageNumberPagination
 from .models import CustomUser
 from .serializers import BaseUserSerializer
-# from .serializers import EmailTokenObtainSerializer
-from api.paginators import CustomPageNumberPagination
 
 
 
@@ -95,22 +90,6 @@ class CustomUserViewSet(
         )
         return Response(serializer.data)
 
-    """
-    @action(['get'], detail=False)
-    def subscriptions(self, request, *args, **kwargs):
-        user = request.user
-        subscribed = user.subscribed.values_list('author_id', flat=True)
-        queryset = CustomUser.objects.filter(id__in=subscribed)
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(
-            queryset, many=True, context={'request': request}
-        )
-        return Response(serializer.data)
-    """
-
     @action(['post', 'delete'], detail=True)
     def subscribe(self, request, *args, **kwargs):
         user = request.user
@@ -128,22 +107,3 @@ class CustomUserViewSet(
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         user.subscribed.filter(author=author).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-"""
-## новая вьюшка для аутентификации по емэйлу
-class EmailTokenObtainPairView(TokenObtainPairView):
-    serializer_class = EmailTokenObtainSerializer
-
-
-class LogoutView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        try:
-            token = request.auth.token
-            token.blacklist()
-
-            return Response(status=status.HTTP_205_RESET_CONTENT)
-        except Exception as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-"""

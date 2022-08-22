@@ -59,4 +59,3 @@ class SubscribeSerializer(UserWithRecipesSerializer):
         user = get_object_or_404(CustomUser, id=user_id)
         ret = BaseUserSerializer(instance=self.instance, context={'user': user}).data
         return ret
-        # return self.instance
