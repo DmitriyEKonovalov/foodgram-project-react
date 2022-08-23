@@ -33,6 +33,18 @@ class SubscribeSerializer(UserWithRecipesSerializer):
                   'is_subscribed', 'recipes', 'recipes_count',
                   'author_id', 'user_id', 'method')
 
+    def save(self, **kwargs):
+        author_id = self.validated_data.get('author_id')
+        user_id = self.validated_data.get('user_id')
+        subscribe, is_created = Subscribe.objects.get_or_create(
+            author_id=author_id, user_id=user_id
+        )
+        user = get_object_or_404(CustomUser, id=user_id)
+        self.instance = subscribe.author
+        ret = BaseUserSerializer(instance=self.instance, context={'user': user}).data
+        return ret
+
+    """
     def validate(self, attrs):
         user_id = attrs.get('user_id')
         author_id = attrs.get('author_id')
@@ -61,3 +73,4 @@ class SubscribeSerializer(UserWithRecipesSerializer):
         user = get_object_or_404(CustomUser, id=user_id)
         ret = BaseUserSerializer(instance=self.instance, context={'user': user}).data
         return ret
+    """
