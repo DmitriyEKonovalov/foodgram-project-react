@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from recipes.models import Subscribe
+from recipes.models import Subscribe, Recipe
 from users.models import CustomUser
 from users.serializers import BaseUserSerializer
 from .base_serializers import BaseRecipeSerializer
@@ -17,7 +17,9 @@ class UserWithRecipesSerializer(BaseUserSerializer):
                   'is_subscribed', 'recipes', 'recipes_count')
 
     def get_recipes_count(self, obj):
-        return obj.recipes.count()
+        recipes = Recipe.objects.filter(author=obj).count()
+        return recipes
+        # return obj.recipes.count()
 
 
 class SubscribeSerializer(UserWithRecipesSerializer):

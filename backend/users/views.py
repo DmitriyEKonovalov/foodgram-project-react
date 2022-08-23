@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from djoser import utils
 from djoser.compat import get_user_email
 from djoser.conf import settings
+from django.db.models import OuterRef, Subquery, Prefetch
 from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets
@@ -14,6 +15,7 @@ from api.serializers.users_serializers import (
     SubscribeSerializer, UserWithRecipesSerializer
 )
 from api.paginators import CustomPageNumberPagination
+from recipes.models import Recipe
 from .models import CustomUser
 from .serializers import BaseUserSerializer
 
@@ -80,7 +82,25 @@ class CustomUserViewSet(
     def subscriptions(self, request, *args, **kwargs):
         user = request.user
         subscribed = user.subscribed.values_list('author_id', flat=True)
-        queryset = CustomUser.objects.filter(id__in=subscribed)
+        try:
+            recipes_limit = int(self.request.query_params['recipes_limit'])
+            recipes = Subquery(Recipe.objects.filter(
+                author=OuterRef('author')
+            ).values_list(
+                'id', flat=True
+            )[:recipes_limit])
+
+            queryset = CustomUser.objects.filter(
+                id__in=subscribed
+            ).prefetch_related(
+                Prefetch(
+                    'recipes',
+                    queryset=Recipe.objects.filter(id__in=recipes)
+                )
+            )
+        except (ValueError, KeyError) as error:
+            queryset = CustomUser.objects.filter(id__in=subscribed)
+
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
