@@ -12,7 +12,7 @@ class BaseUserSerializer(serializers.ModelSerializer):
     first_name = serializers.ReadOnlyField()
     last_name = serializers.ReadOnlyField()
     email = serializers.ReadOnlyField()
-    is_subscribed = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = CustomUser
@@ -22,5 +22,6 @@ class BaseUserSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, obj):
         user = self.context.get('user')
         if user and user.is_authenticated:
-            return user.subscribed.filter(author=obj).exists()
+            ret = user.subscribed.filter(author=obj).exists()
+            return ret
         return False
