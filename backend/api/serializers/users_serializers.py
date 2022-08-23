@@ -19,7 +19,6 @@ class UserWithRecipesSerializer(BaseUserSerializer):
     def get_recipes_count(self, obj):
         recipes = Recipe.objects.filter(author=obj).count()
         return recipes
-        # return obj.recipes.count()
 
 
 class SubscribeSerializer(UserWithRecipesSerializer):

@@ -64,9 +64,14 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Несуществующий тэг!')
 
         ingredients = attrs.get('ingredients')
-        ingrs_id = [item['id'] for item in ingredients]
+        ingrs_id = []
+        for item in ingredients:
+            ingrs_id.append(item['id'])
+            if item['amount'] <= 0:
+                raise serializers.ValidationError('кол-во должно быть >0')
+
         if len(ingrs_id) != len(set(ingrs_id)):
-            raise serializers.ValidationError('Найдены дубли ингредиентов!!')
+            raise serializers.ValidationError('Найдены дубли ингредиентов!')
         cnt = Ingredient.objects.filter(id__in=ingrs_id).count()
         if cnt != len(ingrs_id):
             raise serializers.ValidationError('Несуществующий ингредиент!')
