@@ -70,6 +70,10 @@ class RecipeSerializer(serializers.ModelSerializer):
             if item['amount'] <= 0:
                 raise serializers.ValidationError('кол-во должно быть >0')
 
+        cooking_time = attrs.get('cooking_time')
+        if cooking_time and cooking_time <= 0:
+            raise serializers.ValidationError('Время готовки должно быть >0!')
+
         if len(ingrs_id) != len(set(ingrs_id)):
             raise serializers.ValidationError('Найдены дубли ингредиентов!')
         cnt = Ingredient.objects.filter(id__in=ingrs_id).count()
