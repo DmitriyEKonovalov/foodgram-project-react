@@ -38,9 +38,12 @@ class SubscribeSerializer(UserWithRecipesSerializer):
         subscribe, is_created = Subscribe.objects.get_or_create(
             author_id=author_id, user_id=user_id
         )
-        user = get_object_or_404(CustomUser, id=user_id)
         self.instance = subscribe.author
-        ret = BaseUserSerializer(instance=self.instance, context={'user': user}).data
+        context = {
+            'user': get_object_or_404(CustomUser, id=user_id),
+            'author': subscribe.author
+        }
+        ret = BaseUserSerializer(instance=self.instance, context=context).data
         return ret
 
     """
