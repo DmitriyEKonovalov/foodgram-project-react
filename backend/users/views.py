@@ -50,8 +50,8 @@ class CustomUserViewSet(
     def get_serializer_class(self):
         return self.ACTIONS_SERIALIZERS.get(self.action)
 
-    def get_object(self):
-        return self.request.user
+    # def get_object(self):
+    #     return self.request.user
 
     def retrieve(self, request, *args, **kwargs):
         author = CustomUser.objects.get(id=kwargs.get('pk'))
