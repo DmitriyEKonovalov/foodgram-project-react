@@ -54,7 +54,7 @@ class CustomUserViewSet(
         return self.request.user
 
     def retrieve(self, request, *args, **kwargs):
-        author = get_object_or_404(CustomUser, id=kwargs['pk'])
+        author = get_object_or_404(CustomUser, id=kwargs.get('pk'))
         context = {
             'user': request.user,
             'author': author
