@@ -59,7 +59,7 @@ class CustomUserViewSet(
             'user': request.user,
             'author': author
         }
-        instance = author
+        instance = self.get_object()
         serializer = self.get_serializer(instance, context=context)
         return Response(serializer.data)
 
