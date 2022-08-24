@@ -53,16 +53,6 @@ class CustomUserViewSet(
     def get_object(self):
         return self.request.user
 
-    # def retrieve(self, request, *args, **kwargs):
-    #     author = CustomUser.objects.get(id=kwargs.get('pk'))
-    #     context = {
-    #         'user': request.user,
-    #         'author': author
-    #     }
-    #     instance = self.get_object()
-    #     serializer = self.get_serializer(instance, context=context)
-    #     return Response(serializer.data)
-
     @action(['get'], detail=False)
     def me(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)

@@ -19,21 +19,4 @@ router.register(
 urlpatterns = [
     path('', include(router.urls)),
     path('auth/', include('djoser.urls.authtoken'))
-
-    # path(
-    #     'auth/token/login/',
-    #     TokenObtainPairView.as_view(),
-    #     name='login'
-    # ),
-    # path(
-    #     'auth/token/logout/',
-    #     LogoutView.as_view(),
-    #     name='logout'
-    # )
-    # path(
-    #     'auth/token/login/',
-    #     EmailTokenObtainPairView.as_view(),
-    #     name='login'
-    # ),
-
 ]
