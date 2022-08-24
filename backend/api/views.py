@@ -65,6 +65,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         return queryset
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['user'] = self.request.user
+        return context
+
     def _users_recipe(self, model, recipe_id):
         user = self.request.user
         recipe = get_object_or_404(Recipe, id=recipe_id)

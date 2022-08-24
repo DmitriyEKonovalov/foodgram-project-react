@@ -99,6 +99,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def to_representation(self, obj):
         self.fields['tags'] = BaseTagSerializer(many=True)
+        self.context['author'] = obj.author
         return super().to_representation(obj)
 
 
