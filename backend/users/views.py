@@ -55,7 +55,10 @@ class CustomUserViewSet(
 
     @action(['get'], detail=False)
     def me(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
+        instance = self.request.user
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+        # return self.retrieve(request, *args, **kwargs)
 
     @action(["post"], detail=False)
     def set_password(self, request, *args, **kwargs):
