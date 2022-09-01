@@ -1,7 +1,4 @@
 ![example event parameter](https://github.com/DmitriyEKonovalov/foodgram-project-react/actions/workflows/main.yml/badge.svg?event=push)
-ip сервера http://51.250.31.128/
-login admin@admin.admin
-pass 0adminuser
 
 # Сайт Foodgram. Сборник рецептов и продуктовый помощник. 
 Реализация модели, API и деплой в рамках дипломного задания Яндекс.Практикум.
